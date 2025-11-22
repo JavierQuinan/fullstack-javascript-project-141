@@ -1,0 +1,21 @@
+extends ../layout.pug
+
+block content
+  if flash
+    .alert(class=`alert-${flash.type}` role='alert')= flash.message
+  h2 Editar usuario
+  form(action=`/users/${user.id}` method='post')
+    input(type='hidden' name='_method' value='PATCH')
+    .mb-3
+      label.form-label(for='data_firstName') Nombre
+      input.form-control(type='text' id='data_firstName' name='data[firstName]' value=user.firstName required minlength='1')
+    .mb-3
+      label.form-label(for='data_lastName') Apellido
+      input.form-control(type='text' id='data_lastName' name='data[lastName]' value=user.lastName required minlength='1')
+    .mb-3
+      label.form-label(for='data_email') Correo
+      input.form-control(type='email' id='data_email' name='data[email]' value=user.email required)
+    .mb-3
+      label.form-label(for='data_password') Contraseña (dejar vacío para mantener la actual)
+      input.form-control(type='password' id='data_password' name='data[password]' minlength='3')
+    button.btn.btn-primary(type='submit') Guardar

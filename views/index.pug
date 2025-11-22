@@ -1,0 +1,28 @@
+extends layout.pug
+
+block navbar
+  nav.navbar.navbar-expand-lg.navbar-light.bg-light
+    .container-fluid
+      a.navbar-brand(href='#')= t('site.title')
+      button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarNav' aria-controls='navbarNav' aria-expanded='false' aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+      #navbarNav.collapse.navbar-collapse
+        ul.navbar-nav.me-auto.mb-2.mb-lg-0
+          li.nav-item
+            a.nav-link.active(aria-current='page' href='#')= t('nav.home')
+        form.d-flex
+          a.btn.btn-outline-primary.me-2(href='/login')= t('nav.login')
+          a.btn.btn-outline-success.me-2(href='/signup')= t('nav.signup')
+          a.btn.btn-outline-secondary(href='/users')= t('nav.users')
+
+block content
+  .p-5.mb-4.bg-light.rounded-3
+    .container-fluid.py-5
+      h1.display-5.fw-bold= t('hero.title')
+      p.col-md-8.lead= t('hero.subtitle')
+
+  p
+    | Cambia el idioma: 
+    a(href='/?lng=es') Español
+    |  | 
+    a(href='/?lng=en') English

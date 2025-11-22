@@ -1,0 +1,23 @@
+extends ../layout.pug
+
+block content
+  if flash
+    .alert(class=`alert-${flash.type}` role='alert')= flash.message
+  h2= task.name
+  p
+    strong Estado: 
+    | #{task.statusName}
+  p
+    strong Creador: 
+    | #{task.creatorFirstName} #{task.creatorLastName}
+  p
+    strong Ejecutor: 
+    | #{task.executorFirstName ? `${task.executorFirstName} ${task.executorLastName}` : ''}
+  p
+    strong Descripción:
+  p= task.description
+  if currentUser && String(currentUser.id) === String(task.creatorId)
+    a.btn.btn-primary(href=`/tasks/${task.id}/edit`) Editar
+    form.d-inline(action=`/tasks/${task.id}` method='post')
+      input(type='hidden' name='_method' value='DELETE')
+      button.btn.btn-danger(type='submit') Eliminar

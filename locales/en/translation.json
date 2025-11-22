@@ -1,0 +1,31 @@
+{
+  "site": {
+    "title": "Fastify App"
+  },
+  "nav": {
+    "home": "Home",
+    "login": "Login",
+    "signup": "Register",
+    "users": "Users",
+    "statuses": "Statuses",
+    "logout": "Logout",
+    "tasks": "Tasks"
+  },
+  "hero": {
+    "title": "Welcome to Fastify App",
+    "subtitle": "Server-side rendered with Pug and Bootstrap"
+  }
+  ,
+  "status": {
+    "name": "Name",
+    "created": "Status created",
+    "updated": "Status updated",
+    "deleted": "Status deleted"
+  }
+  ,
+  "task": {
+    "created": "Task created",
+    "updated": "Task updated",
+    "deleted": "Task deleted"
+  }
+}

@@ -1,0 +1,28 @@
+extends ../layout.pug
+
+block content
+  if flash
+    .alert(class=`alert-${flash.type}` role='alert')= flash.message
+  h2 Usuarios
+  table.table
+    thead
+      tr
+        th ID
+        th Nombre
+        th Apellido
+        th Email
+        th Acciones
+    tbody
+      each user in users
+        tr
+          td= user.id
+          td= user.firstName
+          td= user.lastName
+          td= user.email
+          td
+            if currentUser && String(currentUser.id) === String(user.id)
+              a.btn.btn-sm.btn-outline-primary(href=`/users/${user.id}/edit`) Editar
+              form.d-inline(action=`/users/${user.id}` method='post')
+                input(type='hidden' name='_method' value='DELETE')
+                button.btn.btn-sm.btn-outline-danger(type='submit') Eliminar
+  a.btn.btn-primary(href='/users/new') Nuevo usuario

@@ -1,0 +1,14 @@
+extends ../layout.pug
+
+block content
+  if flash
+    .alert(class=`alert-${flash.type}` role='alert')= flash.message
+  h2 Iniciar sesión
+  form(action='/session' method='post')
+    .mb-3
+      label.form-label(for='data_email') Correo
+      input.form-control(type='email' id='data_email' name='data[email]' required)
+    .mb-3
+      label.form-label(for='data_password') Contraseña
+      input.form-control(type='password' id='data_password' name='data[password]' required)
+    button.btn.btn-primary(type='submit') Iniciar sesión

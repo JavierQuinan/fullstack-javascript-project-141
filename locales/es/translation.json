@@ -1,0 +1,31 @@
+{
+  "site": {
+    "title": "Aplicación Fastify"
+  },
+  "nav": {
+    "home": "Inicio",
+    "login": "Iniciar sesión",
+    "signup": "Registro",
+    "users": "Usuarios",
+    "statuses": "Estados",
+    "logout": "Cerrar sesión",
+    "tasks": "Tareas"
+  },
+  "hero": {
+    "title": "Bienvenido a la Aplicación Fastify",
+    "subtitle": "Renderizado en el servidor con Pug y Bootstrap"
+  }
+  ,
+  "status": {
+    "name": "Nombre",
+    "created": "Estado creado",
+    "updated": "Estado actualizado",
+    "deleted": "Estado eliminado"
+  }
+  ,
+  "task": {
+    "created": "Tarea creada",
+    "updated": "Tarea actualizada",
+    "deleted": "Tarea eliminada"
+  }
+}

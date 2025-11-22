@@ -1,0 +1,30 @@
+extends ../layout.pug
+
+block content
+  if flash
+    .alert(class=`alert-${flash.type}` role='alert')= flash.message
+  h2 Nueva tarea
+  form(action='/tasks' method='post')
+    .mb-3
+      label.form-label(for='data_name') Nombre
+      input.form-control(type='text' id='data_name' name='data[name]' required minlength='1')
+    .mb-3
+      label.form-label(for='data_description') Descripción
+      textarea.form-control(id='data_description' name='data[description]')
+    .mb-3
+      label.form-label(for='data_statusId') Estado
+      select.form-select(id='data_statusId' name='data[statusId]')
+        each s in statuses
+          option(value=s.id)= s.name
+    .mb-3
+      label.form-label(for='data_executorId') Ejecutor
+      select.form-select(id='data_executorId' name='data[executorId]')
+        option(value='') -
+        each u in users
+          option(value=u.id)= `${u.firstName} ${u.lastName}`
+    .mb-3
+      label.form-label(for='data_labelIds') Etiquetas
+      select.form-select(id='data_labelIds' name='data[labelIds][]' multiple)
+        each l in labels
+          option(value=l.id)= l.name
+    button.btn.btn-primary(type='submit') Crear

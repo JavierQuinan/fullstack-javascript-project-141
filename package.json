@@ -6,13 +6,30 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node src/server.js"
+    "dev": "node src/server.js",
+    "build": "webpack --config webpack.config.cjs --mode production",
+    "test": "mocha --exit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.0",
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "pug": "^3.0.2",
+    "i18next": "^23.0.0",
+    "i18next-fs-backend": "^2.1.7",
+    "knex": "^2.5.1",
+    "bcrypt": "^5.1.0",
+    "@fastify/cookie": "^9.0.0"
+  },
+  "optionalDependencies": {
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "mocha": "^10.2.0",
+    "sqlite3": "^5.1.6"
   }
 }
