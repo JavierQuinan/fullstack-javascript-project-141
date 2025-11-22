@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "dev": "node src/server.js",
     "build": "webpack --config webpack.config.cjs --mode production",
-    "test": "mocha --exit"
+    "test": "mocha --exit",
+    "setup": "node scripts/setup.js"
   },
   "keywords": [],
   "author": "",
