@@ -27,39 +27,24 @@ const knex = knexLib({
 });
 
 export const ensureBaseSchema = async () => {
-  // Crear tabla users si aún no existe (evita condición de carrera antes de migraciones)
+  // La migración ahora maneja ambas columnas (password y passwordDigest)
+  // Solo verificamos y sincronizamos si la tabla ya existe pero faltan columnas
   const hasUsers = await knex.schema.hasTable('users');
-  if (!hasUsers) {
-    await knex.schema.createTable('users', (table) => {
-      table.increments('id').primary();
-      table.string('email').notNullable().unique();
-      table.string('passwordDigest').notNullable();
-      // Columna legacy "password" para compatibilidad con tests externos que aún la esperan
-      table.string('password').notNullable();
-      table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable();
-      table.timestamp('updated_at').defaultTo(knex.fn.now()).notNullable();
+  if (!hasUsers) return; // Migración se encargará
+
+  const hasPwdDigest = await knex.schema.hasColumn('users', 'passwordDigest');
+  const hasPassword = await knex.schema.hasColumn('users', 'password');
+
+  if (!hasPwdDigest) {
+    await knex.schema.table('users', (t) => {
+      t.string('passwordDigest').notNullable().default('');
     });
-  } else {
-    const hasPwd = await knex.schema.hasColumn('users', 'passwordDigest');
-    if (!hasPwd) {
-      await knex.schema.table('users', (t) => {
-        t.string('passwordDigest').notNullable().default('');
-      });
-    }
-    // Asegurar columna legacy password
-    const hasLegacyPassword = await knex.schema.hasColumn('users', 'password');
-    if (!hasLegacyPassword) {
-      await knex.schema.table('users', (t) => {
-        t.string('password').notNullable().default('');
-      });
-      // Copiar valores existentes desde passwordDigest si existen
-      const rows = await knex('users').select('id', 'passwordDigest');
-      for (const r of rows) {
-        if (r.passwordDigest) {
-          await knex('users').where({ id: r.id }).update({ password: r.passwordDigest });
-        }
-      }
-    }
+  }
+  
+  if (!hasPassword) {
+    await knex.schema.table('users', (t) => {
+      t.string('password').notNullable().default('');
+    });
   }
 };
 

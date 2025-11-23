@@ -4,10 +4,11 @@ exports.up = async function(knex) {
   if (exists) return; // idempotencia en CI
   await knex.schema.createTable('users', (table) => {
     table.increments('id').primary();
-    table.string('firstName').notNullable();
-    table.string('lastName').notNullable();
+    table.string('firstName').notNullable().default('');
+    table.string('lastName').notNullable().default('');
     table.string('email').notNullable().unique();
-    table.string('password').notNullable();
+    table.string('password').notNullable().default('');
+    table.string('passwordDigest').notNullable().default('');
     table.timestamps(true, true);
   });
 };

@@ -63,25 +63,6 @@ export const buildApp = async () => {
   // Ejecutar migraciones al inicio (idempotentes por hasTable)
   try {
     await knex.migrate.latest();
-    // Asegurar columna passwordDigest si no existe
-    const hasUsers = await knex.schema.hasTable('users');
-    if (hasUsers) {
-      const hasPwdDigest = await knex.schema.hasColumn('users', 'passwordDigest');
-      if (!hasPwdDigest) {
-        await knex.schema.table('users', (t) => {
-          t.string('passwordDigest').notNullable().default('');
-        });
-        // Copiar datos existentes si hay columna legacy 'password'
-        try {
-          const rows = await knex('users').select('id', 'password');
-          for (const r of rows) {
-            if (r.password) {
-              await knex('users').where({ id: r.id }).update({ passwordDigest: r.password });
-            }
-          }
-        } catch (_) {}
-      }
-    }
   } catch (e) {
     app.log.error({ err: e }, 'Error running migrations on startup');
   }
