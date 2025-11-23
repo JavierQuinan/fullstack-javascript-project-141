@@ -7,14 +7,32 @@ block content
   form(action='/users' method='post')
     .mb-3
       label.form-label(for='data_firstName') Nombre
-      input.form-control(type='text' id='data_firstName' name='data[firstName]' required minlength='1')
+      if errors && errors.firstName
+        input.form-control.is-invalid(type='text' id='data_firstName' name='data[firstName]' value=values && values.firstName || '')
+        .invalid-feedback= errors.firstName
+      else
+        input.form-control(type='text' id='data_firstName' name='data[firstName]' value=values && values.firstName || '' required minlength='1')
     .mb-3
       label.form-label(for='data_lastName') Apellido
-      input.form-control(type='text' id='data_lastName' name='data[lastName]' required minlength='1')
+      if errors && errors.lastName
+        input.form-control.is-invalid(type='text' id='data_lastName' name='data[lastName]' value=values && values.lastName || '')
+        .invalid-feedback= errors.lastName
+      else
+        input.form-control(type='text' id='data_lastName' name='data[lastName]' value=values && values.lastName || '' required minlength='1')
     .mb-3
       label.form-label(for='data_email')= t('form.email')
-      input.form-control(type='email' id='data_email' name='data[email]' required)
+      if errors && errors.email
+        input.form-control.is-invalid(type='email' id='data_email' name='data[email]' value=values && values.email || '')
+        .invalid-feedback= errors.email
+      else
+        input.form-control(type='email' id='data_email' name='data[email]' value=values && values.email || '' required)
     .mb-3
       label.form-label(for='data_password')= t('form.password')
-      input.form-control(type='password' id='data_password' name='data[password]' required minlength='3')
+      if errors && errors.password
+        input.form-control.is-invalid(type='password' id='data_password' name='data[password]')
+        .invalid-feedback= errors.password
+      else
+        input.form-control(type='password' id='data_password' name='data[password]' required minlength='3')
+    if errors && errors.general
+      .alert.alert-danger= errors.general
     button.btn.btn-primary(type='submit')= t('form.save')

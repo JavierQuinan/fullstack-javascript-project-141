@@ -479,15 +479,33 @@ export const buildApp = async () => {
     app.post('/users', async (request, reply) => {
       const data = request.body && request.body.data ? request.body.data : {};
       const { firstName = '', lastName = '', email = '', password = '' } = data;
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      
+      // Helper para renderizar el formulario con errores
+      const renderForm = (errors = null) => {
+        const values = { firstName, lastName, email };
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'users', 'new.pug'), { 
+          t, 
+          lang, 
+          currentUser: request.currentUser,
+          errors, 
+          values 
+        });
+        return reply.code(422).type('text/html').send(html);
+      };
+      
+      // Validar campos requeridos
       if (!firstName || !lastName || !email || !password || String(password).length < 3) {
-        setFlash(reply, 'danger', 'Validation error: check required fields');
-        return reply.redirect('/users/new');
+        const errors = { general: 'Validation error: check required fields' };
+        return renderForm(errors);
       }
+      
       // Evitar condición de carrera: intentar crear y capturar violación única
       try {
         if (await userRepo.findByEmail(email)) {
-          setFlash(reply, 'danger', 'Email already in use');
-          return reply.redirect('/users/new');
+          const errors = { email: 'Email already in use' };
+          return renderForm(errors);
         }
         const hashed = await bcrypt.hash(password, 10);
         // Para compatibilidad: almacenar en passwordDigest y password
@@ -496,12 +514,12 @@ export const buildApp = async () => {
         return reply.redirect('/');
       } catch (err) {
         if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
-          setFlash(reply, 'danger', 'Email already in use');
-          return reply.redirect('/users/new');
+          const errors = { email: 'Email already in use' };
+          return renderForm(errors);
         }
         request.log.error(err);
-        setFlash(reply, 'danger', 'Internal error');
-        return reply.redirect('/users/new');
+        const errors = { general: 'Internal error' };
+        return renderForm(errors);
       }
     });
 
