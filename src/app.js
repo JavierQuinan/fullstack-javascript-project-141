@@ -588,6 +588,7 @@ export const buildApp = async () => {
       const user = await userRepo.findByEmail(email);
       if (!user) {
         setFlash(reply, 'danger', i18next.t('alerts.invalidCredentials'));
+        app.log.info({ email, success: false, reason: 'user_not_found' }, 'session login attempt');
         return reply.redirect('/session');
       }
       // Compatibilidad: aceptar bcrypt, sha256 y comparación directa (solo si test usa otro método)
@@ -604,8 +605,10 @@ export const buildApp = async () => {
       }
       if (!ok) {
         setFlash(reply, 'danger', i18next.t('alerts.invalidCredentials'));
+        app.log.info({ email, success: false, userId: user.id, reason: 'invalid_password' }, 'session login attempt');
         return reply.redirect('/session');
       }
+      app.log.info({ email, success: true, userId: user.id }, 'session login attempt');
       setCookie(reply, 'userId', String(user.id), { path: '/' });
       setFlash(reply, 'success', i18next.t('alerts.signIn'));
       return reply.redirect('/');
