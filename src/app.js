@@ -614,20 +614,26 @@ export const buildApp = async () => {
         return renderLogin();
       }
       app.log.info({ email, success: true, userId: user.id }, 'session login attempt');
+      const lang = request.query.lng || 'es';
+      const t = i18next.getFixedT(lang);
       setCookie(reply, 'userId', String(user.id), { path: '/' });
-      setFlash(reply, 'success', i18next.t('alerts.signIn'));
+      setFlash(reply, 'success', t('alerts.signIn'));
       return reply.redirect('/');
     });
 
     app.delete('/session', async (request, reply) => {
+      const lang = request.query.lng || 'es';
+      const t = i18next.getFixedT(lang);
       clearCookie(reply, 'userId', { path: '/' });
-      setFlash(reply, 'success', i18next.t('alerts.signOut'));
+      setFlash(reply, 'success', t('alerts.signOut'));
       return reply.redirect('/');
     });
     // Ruta alternativa POST para sign out según requerimiento
     app.post('/session/delete', async (request, reply) => {
+      const lang = request.query.lng || 'es';
+      const t = i18next.getFixedT(lang);
       clearCookie(reply, 'userId', { path: '/' });
-      setFlash(reply, 'success', i18next.t('alerts.signOut'));
+      setFlash(reply, 'success', t('alerts.signOut'));
       return reply.redirect('/');
     });
 
