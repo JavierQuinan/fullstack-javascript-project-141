@@ -571,11 +571,12 @@ export const buildApp = async () => {
       app.log.info({ 
         body: request.body,
         contentType: request.headers['content-type'],
-        rawBody: request.raw
-      }, 'DEBUG: POST /session raw request data');
+      }, 'DEBUG: POST /session request data');
       
-      const data = request.body && request.body.data ? request.body.data : {};
-      const { email = '', password = '' } = data;
+      // @fastify/formbody parsea data[email] como clave literal "data[email]", no como objeto anidado
+      const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
+      const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
+      
       const user = await userRepo.findByEmail(email);
       const renderLogin = () => {
         const lang = request.query.lng || 'es';
