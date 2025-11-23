@@ -1,4 +1,5 @@
 .PHONY: setup install lint test clean build
+# Updated: 2025-11-22 - Force cache bust
 
 setup:
 	npm run setup
