@@ -32,6 +32,8 @@ html(lang=lang)
                 li.nav-item
                   a.nav-link(href='/users/new')= t('nav.signup')
     .container.mt-4
+      if flash
+        .alert(class=`alert-${flash.type}` role='alert')= flash.message
       block content
 
     // Bootstrap JS (bundle includes Popper)
