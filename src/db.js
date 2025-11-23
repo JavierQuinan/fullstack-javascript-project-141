@@ -34,6 +34,8 @@ export const ensureBaseSchema = async () => {
       table.increments('id').primary();
       table.string('email').notNullable().unique();
       table.string('passwordDigest').notNullable();
+      // Columna legacy "password" para compatibilidad con tests externos que aún la esperan
+      table.string('password').notNullable();
       table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable();
       table.timestamp('updated_at').defaultTo(knex.fn.now()).notNullable();
     });
@@ -43,6 +45,20 @@ export const ensureBaseSchema = async () => {
       await knex.schema.table('users', (t) => {
         t.string('passwordDigest').notNullable().default('');
       });
+    }
+    // Asegurar columna legacy password
+    const hasLegacyPassword = await knex.schema.hasColumn('users', 'password');
+    if (!hasLegacyPassword) {
+      await knex.schema.table('users', (t) => {
+        t.string('password').notNullable().default('');
+      });
+      // Copiar valores existentes desde passwordDigest si existen
+      const rows = await knex('users').select('id', 'passwordDigest');
+      for (const r of rows) {
+        if (r.passwordDigest) {
+          await knex('users').where({ id: r.id }).update({ password: r.passwordDigest });
+        }
+      }
     }
   }
 };
