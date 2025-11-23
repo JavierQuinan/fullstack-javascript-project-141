@@ -582,7 +582,11 @@ export const buildApp = async () => {
         const lang = request.query.lng || 'es';
         const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
         const errors = withValidationError ? { email: t('alerts.invalidCredentials') } : null;
-        const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, errors });
+        // Clear any existing flash when showing validation errors
+        if (withValidationError) {
+          clearCookie(reply, 'flash', { path: '/' });
+        }
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, errors, currentUser: request.currentUser });
         return reply.status(401).type('text/html').send(html);
       };
       if (!user) {
