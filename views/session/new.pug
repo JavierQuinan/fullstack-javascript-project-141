@@ -7,8 +7,12 @@ block content
   form(action='/session' method='post')
     .mb-3
       label.form-label(for='data_email')= t('form.email')
-      input.form-control(type='email' id='data_email' name='data[email]' required)
+      input.form-control(type='email' id='data_email' name='data[email]' class=errors && errors.email ? 'is-invalid' : '' required)
+      if errors && errors.email
+        .invalid-feedback= errors.email
     .mb-3
       label.form-label(for='data_password')= t('form.password')
-      input.form-control(type='password' id='data_password' name='data[password]' required)
+      input.form-control(type='password' id='data_password' name='data[password]' class=errors && errors.password ? 'is-invalid' : '' required)
+      if errors && errors.password
+        .invalid-feedback= errors.password
     button.btn.btn-primary(type='submit')= t('form.signIn')

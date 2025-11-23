@@ -578,16 +578,16 @@ export const buildApp = async () => {
       const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
       
       const user = await userRepo.findByEmail(email);
-      const renderLogin = () => {
+      const renderLogin = (withValidationError = false) => {
         const lang = request.query.lng || 'es';
         const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
-        const flash = { type: 'danger', message: t('alerts.invalidCredentials') };
-        const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, flash });
+        const errors = withValidationError ? { email: t('alerts.invalidCredentials') } : null;
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, errors });
         return reply.status(401).type('text/html').send(html);
       };
       if (!user) {
         app.log.info({ email, success: false, reason: 'user_not_found' }, 'session login attempt');
-        return renderLogin();
+        return renderLogin(true);
       }
       // Compatibilidad: aceptar bcrypt, sha256 y comparación directa (solo si test usa otro método)
       const candidates = [user.passwordDigest, user.password].filter(Boolean);
@@ -611,7 +611,7 @@ export const buildApp = async () => {
       }
       if (!ok) {
         app.log.info({ email, success: false, userId: user.id, reason: 'invalid_password' }, 'session login attempt');
-        return renderLogin();
+        return renderLogin(true);
       }
       app.log.info({ email, success: true, userId: user.id }, 'session login attempt');
       const lang = request.query.lng || 'es';
