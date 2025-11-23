@@ -492,8 +492,8 @@ export const buildApp = async () => {
         const hashed = await bcrypt.hash(password, 10);
         // Para compatibilidad: almacenar en passwordDigest y password
         await userRepo.create({ firstName, lastName, email, passwordDigest: hashed, password: hashed });
-        setFlash(reply, 'success', 'User created');
-        return reply.redirect('/session/new');
+        setFlash(reply, 'info', 'Usuario registrado con éxito');
+        return reply.redirect('/');
       } catch (err) {
         if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
           setFlash(reply, 'danger', 'Email already in use');
