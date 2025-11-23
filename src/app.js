@@ -39,13 +39,7 @@ export const buildApp = async () => {
 
   // Registrar Objection.js plugin para compatibilidad con tests de hexlet
   // Intentar múltiples rutas de migraciones para compatibilidad CI/local
-  const migrationsPaths = [
-    '/project/migrations',
-    join(__dirname, '..', 'migrations'),
-    join(__dirname, '..', 'knex-migrations'),
-    join(__dirname, '..', 'code', 'migrations'),
-  ];
-  
+  // Usar solo un directorio consistente de migraciones para que knex lleve tracking correcto
   await app.register(fastifyObjectionjs, {
     knexConfig: {
       client: 'sqlite3',
@@ -54,7 +48,7 @@ export const buildApp = async () => {
       },
       useNullAsDefault: true,
       migrations: {
-        directory: migrationsPaths,
+        directory: '/project/migrations',
       },
     },
   });

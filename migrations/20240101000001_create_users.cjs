@@ -1,6 +1,8 @@
 // migrations/20240101000001_create_users.cjs
-exports.up = function(knex) {
-  return knex.schema.createTable('users', (table) => {
+exports.up = async function(knex) {
+  const exists = await knex.schema.hasTable('users');
+  if (exists) return; // idempotencia en CI
+  await knex.schema.createTable('users', (table) => {
     table.increments('id').primary();
     table.string('firstName').notNullable();
     table.string('lastName').notNullable();
@@ -10,6 +12,8 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
-  return knex.schema.dropTableIfExists('users');
+exports.down = async function(knex) {
+  const exists = await knex.schema.hasTable('users');
+  if (!exists) return;
+  await knex.schema.dropTable('users');
 };

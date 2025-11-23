@@ -1,6 +1,8 @@
 // migrations/20240101000003_create_tasks.cjs
-exports.up = function(knex) {
-  return knex.schema.createTable('tasks', (table) => {
+exports.up = async function(knex) {
+  const exists = await knex.schema.hasTable('tasks');
+  if (exists) return;
+  await knex.schema.createTable('tasks', (table) => {
     table.increments('id').primary();
     table.string('name').notNullable();
     table.text('description');
@@ -11,6 +13,8 @@ exports.up = function(knex) {
   });
 };
 
-exports.down = function(knex) {
-  return knex.schema.dropTableIfExists('tasks');
+exports.down = async function(knex) {
+  const exists = await knex.schema.hasTable('tasks');
+  if (!exists) return;
+  await knex.schema.dropTable('tasks');
 };
