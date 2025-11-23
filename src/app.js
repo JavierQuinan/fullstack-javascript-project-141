@@ -568,6 +568,12 @@ export const buildApp = async () => {
     app.get('/session', async (_req, reply) => reply.redirect('/session/new'));
 
     app.post('/session', async (request, reply) => {
+      app.log.info({ 
+        body: request.body,
+        contentType: request.headers['content-type'],
+        rawBody: request.raw
+      }, 'DEBUG: POST /session raw request data');
+      
       const data = request.body && request.body.data ? request.body.data : {};
       const { email = '', password = '' } = data;
       const user = await userRepo.findByEmail(email);
