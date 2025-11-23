@@ -581,6 +581,14 @@ export const buildApp = async () => {
       // Compatibilidad: aceptar bcrypt, sha256 y comparación directa (solo si test usa otro método)
       const candidates = [user.passwordDigest, user.password].filter(Boolean);
       const sha256 = crypto.createHash('sha256').update(String(password)).digest('hex');
+      app.log.info({ 
+        email, 
+        userId: user.id,
+        passwordDigest: user.passwordDigest,
+        password_field: user.password,
+        sha256_of_input: sha256,
+        candidates: candidates.length
+      }, 'DEBUG: login credentials check');
       let ok = false;
       for (const c of candidates) {
         if (!c) continue;
