@@ -461,21 +461,30 @@ export const buildApp = async () => {
     app.post('/users', async (request, reply) => {
       const data = request.body && request.body.data ? request.body.data : {};
       const { firstName = '', lastName = '', email = '', password = '' } = data;
-      // Validations
       if (!firstName || !lastName || !email || !password || String(password).length < 3) {
         setFlash(reply, 'danger', 'Validation error: check required fields');
         return reply.redirect('/users/new');
       }
-      if (await userRepo.findByEmail(email)) {
-        setFlash(reply, 'danger', 'Email already in use');
+      // Evitar condición de carrera: intentar crear y capturar violación única
+      try {
+        if (await userRepo.findByEmail(email)) {
+          setFlash(reply, 'danger', 'Email already in use');
+          return reply.redirect('/users/new');
+        }
+        const hashed = await bcrypt.hash(password, 10);
+        await userRepo.create({ firstName, lastName, email, password: hashed });
+        setFlash(reply, 'success', 'User created');
+        // No auto-login para alinearse con tests (deben ver enlaces de login/signup)
+        return reply.redirect('/session/new');
+      } catch (err) {
+        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
+          setFlash(reply, 'danger', 'Email already in use');
+          return reply.redirect('/users/new');
+        }
+        request.log.error(err);
+        setFlash(reply, 'danger', 'Internal error');
         return reply.redirect('/users/new');
       }
-      const hashed = await bcrypt.hash(password, 10);
-      const user = await userRepo.create({ firstName, lastName, email, password: hashed });
-      setFlash(reply, 'success', 'User created');
-      // auto-login
-      setCookie(reply, 'userId', String(user.id), { path: '/' });
-      return reply.redirect('/users');
     });
 
     app.get('/users/:id/edit', async (request, reply) => {
