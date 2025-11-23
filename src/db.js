@@ -21,8 +21,30 @@ const knex = knexLib({
   },
   useNullAsDefault: true,
   migrations: {
-    directory: join(__dirname, '..', 'knex-migrations'),
+    // Directorio único usado por la app y CI
+    directory: join(__dirname, '..', 'migrations'),
   },
 });
+
+export const ensureBaseSchema = async () => {
+  // Crear tabla users si aún no existe (evita condición de carrera antes de migraciones)
+  const hasUsers = await knex.schema.hasTable('users');
+  if (!hasUsers) {
+    await knex.schema.createTable('users', (table) => {
+      table.increments('id').primary();
+      table.string('email').notNullable().unique();
+      table.string('passwordDigest').notNullable();
+      table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable();
+      table.timestamp('updated_at').defaultTo(knex.fn.now()).notNullable();
+    });
+  } else {
+    const hasPwd = await knex.schema.hasColumn('users', 'passwordDigest');
+    if (!hasPwd) {
+      await knex.schema.table('users', (t) => {
+        t.string('passwordDigest').notNullable().default('');
+      });
+    }
+  }
+};
 
 export default knex;

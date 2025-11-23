@@ -8,7 +8,7 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import bcrypt from 'bcrypt';
 import fastifyObjectionjs from 'fastify-objectionjs';
-import knex from './db.js';
+import knex, { ensureBaseSchema } from './db.js';
 import { initRollbar, getRollbar } from './rollbar.js';
 import * as userRepo from './repositories/userRepository.js';
 import * as statusRepo from './repositories/statusRepository.js';
@@ -39,7 +39,13 @@ export const buildApp = async () => {
 
   // Registrar Objection.js plugin para compatibilidad con tests de hexlet
   // Intentar múltiples rutas de migraciones para compatibilidad CI/local
-  // Usar solo un directorio consistente de migraciones para que knex lleve tracking correcto
+  // Asegurar schema base antes de registrar plugin (evita "no such table: users" en seeds tempranos)
+  try {
+    await ensureBaseSchema();
+  } catch (e) {
+    app.log.error({ err: e }, 'Error ensuring base schema');
+  }
+
   await app.register(fastifyObjectionjs, {
     knexConfig: {
       client: 'sqlite3',
@@ -48,14 +54,14 @@ export const buildApp = async () => {
       },
       useNullAsDefault: true,
       migrations: {
-        directory: '/project/migrations',
+        directory: join(__dirname, '..', 'migrations'),
       },
     },
   });
 
   // Ejecutar migraciones al inicio (idempotentes por hasTable)
   try {
-    await knex.migrate.latest({ directory: '/project/migrations' });
+    await knex.migrate.latest();
     // Asegurar columna passwordDigest si no existe
     const hasUsers = await knex.schema.hasTable('users');
     if (hasUsers) {
@@ -498,8 +504,8 @@ export const buildApp = async () => {
           return reply.redirect('/users/new');
         }
         const hashed = await bcrypt.hash(password, 10);
-        // Insertar ambas columnas para compatibilidad con posibles expectativas de tests
-        await userRepo.create({ firstName, lastName, email, passwordDigest: hashed, password: hashed });
+        // Insertar sólo columnas soportadas; passwordDigest usada para autenticación
+        await userRepo.create({ firstName, lastName, email, passwordDigest: hashed });
         setFlash(reply, 'success', 'User created');
         return reply.redirect('/session/new');
       } catch (err) {
