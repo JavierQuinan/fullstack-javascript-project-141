@@ -21,7 +21,7 @@ const knex = knexLib({
   },
   useNullAsDefault: true,
   migrations: {
-    directory: join(__dirname, '..', 'migrations'),
+    directory: join(__dirname, '..', 'knex-migrations'),
   },
 });
 
