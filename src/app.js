@@ -561,14 +561,16 @@ export const buildApp = async () => {
     });
 
     // Session routes
-    // Login page ahora en /session
-    app.get('/session', async (request, reply) => {
+    // Restaurar página de login en /session/new
+    app.get('/session/new', async (request, reply) => {
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       const flash = getFlash(request, reply);
       const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, flash });
       return reply.type('text/html').send(html);
     });
+    // Redirigir /session -> /session/new para compatibilidad
+    app.get('/session', async (_req, reply) => reply.redirect('/session/new'));
 
     app.post('/session', async (request, reply) => {
       const data = request.body && request.body.data ? request.body.data : {};
@@ -576,12 +578,12 @@ export const buildApp = async () => {
       const user = await userRepo.findByEmail(email);
       if (!user) {
         setFlash(reply, 'danger', i18next.t('alerts.invalidCredentials'));
-        return reply.redirect('/session');
+        return reply.redirect('/session/new');
       }
       const ok = await bcrypt.compare(password, user.passwordDigest || user.password);
       if (!ok) {
         setFlash(reply, 'danger', i18next.t('alerts.invalidCredentials'));
-        return reply.redirect('/session');
+        return reply.redirect('/session/new');
       }
       setCookie(reply, 'userId', String(user.id), { path: '/' });
       setFlash(reply, 'success', i18next.t('alerts.signIn'));
