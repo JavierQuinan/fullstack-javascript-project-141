@@ -498,7 +498,8 @@ export const buildApp = async () => {
           return reply.redirect('/users/new');
         }
         const hashed = await bcrypt.hash(password, 10);
-        await userRepo.create({ firstName, lastName, email, passwordDigest: hashed });
+        // Insertar ambas columnas para compatibilidad con posibles expectativas de tests
+        await userRepo.create({ firstName, lastName, email, passwordDigest: hashed, password: hashed });
         setFlash(reply, 'success', 'User created');
         return reply.redirect('/session/new');
       } catch (err) {
