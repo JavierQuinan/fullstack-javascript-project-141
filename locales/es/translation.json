@@ -4,7 +4,7 @@
   },
   "nav": {
     "home": "Inicio",
-    "login": "Iniciar sesión",
+    "login": "Entrar",
     "signup": "Registrarse",
     "users": "Usuarios",
     "statuses": "Estados",
@@ -32,7 +32,7 @@
   "form": {
     "email": "Correo electrónico",
     "password": "Contraseña",
-    "signIn": "Iniciar sesión",
+    "signIn": "Entrar",
     "signUp": "Registrarse"
   }
 }
