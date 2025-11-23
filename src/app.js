@@ -558,6 +558,7 @@ export const buildApp = async () => {
     // Session routes
     // Restaurar página de login en /session/new
     app.get('/session/new', async (request, reply) => {
+      app.log.info('===== GET /SESSION/NEW CALLED =====');
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       const flash = getFlash(request, reply);
@@ -569,15 +570,19 @@ export const buildApp = async () => {
         values: { email: '' },
         currentUser: request.currentUser 
       });
+      app.log.info({ htmlLength: html.length, hasForm: html.includes('<form') }, 'GET rendered');
       return reply.type('text/html').send(html);
     });
     // Redirigir /session -> /session/new para compatibilidad
     app.get('/session', async (_req, reply) => reply.redirect('/session/new'));
 
     app.post('/session', async (request, reply) => {
+      app.log.info('===== POST /SESSION CALLED =====');
       // @fastify/formbody parsea data[email] como clave literal "data[email]", no como objeto anidado
       const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
       const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
+      
+      app.log.info({ email, password: password ? '***' : '(empty)' }, 'Login attempt with credentials');
       
       const user = await userRepo.findByEmail(email);
       const renderLogin = (withValidationError = false) => {
@@ -585,6 +590,7 @@ export const buildApp = async () => {
         const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
         const errors = withValidationError ? { email: t('alerts.invalidCredentials') } : null;
         const values = { email };
+        app.log.info({ errors, values, withValidationError }, 'Rendering login with validation errors');
         // Clear any existing flash when showing validation errors
         if (withValidationError) {
           clearCookie(reply, 'flash', { path: '/' });
@@ -597,9 +603,11 @@ export const buildApp = async () => {
           flash: null, 
           currentUser: request.currentUser 
         });
+        app.log.info({ hasInvalidFeedback: html.includes('invalid-feedback'), hasIsInvalid: html.includes('is-invalid') }, 'HTML check');
         return reply.code(422).type('text/html').send(html);
       };
       if (!user) {
+        app.log.info('User not found, rendering error');
         return renderLogin(true);
       }
       // Compatibilidad: aceptar bcrypt, sha256 y comparación directa (solo si test usa otro método)
@@ -615,8 +623,10 @@ export const buildApp = async () => {
         if (c === password) { ok = true; break; }
       }
       if (!ok) {
+        app.log.info('Password validation failed, rendering error');
         return renderLogin(true);
       }
+      app.log.info('Login successful, redirecting');
       const lang = request.query.lng || 'es';
       const t = i18next.getFixedT(lang);
       setCookie(reply, 'userId', String(user.id), { path: '/' });
