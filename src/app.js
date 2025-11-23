@@ -6,6 +6,8 @@ import pug from 'pug';
 import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import bcrypt from 'bcrypt';
+import fastifyObjectionjs from 'fastify-objectionjs';
+import knex from './db.js';
 import { initRollbar, getRollbar } from './rollbar.js';
 import * as userRepo from './repositories/userRepository.js';
 import * as statusRepo from './repositories/statusRepository.js';
@@ -18,6 +20,17 @@ const __dirname = dirname(__filename);
 export const buildApp = async () => {
   const app = Fastify({
     logger: true,
+  });
+
+  // Registrar Objection.js plugin para compatibilidad con tests de hexlet
+  await app.register(fastifyObjectionjs, {
+    knexConfig: {
+      client: 'sqlite3',
+      connection: {
+        filename: process.env.DB_FILE || join(__dirname, '..', 'data', 'app.sqlite3'),
+      },
+      useNullAsDefault: true,
+    },
   });
 
   // Inicializar i18next sincronamente con backend de archivos
