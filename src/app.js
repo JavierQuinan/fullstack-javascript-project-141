@@ -548,15 +548,20 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/users');
       }
-      const data = request.body && request.body.data ? request.body.data : {};
-      const attrs = { firstName: data.firstName, lastName: data.lastName, email: data.email };
-      if (data.password && String(data.password).length >= 3) {
-        const newHashed = await bcrypt.hash(data.password, 10);
+      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+      const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName);
+      const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName);
+      const email = request.body['data[email]'] || (request.body.data && request.body.data.email);
+      const password = request.body['data[password]'] || (request.body.data && request.body.data.password);
+      
+      const attrs = { firstName, lastName, email };
+      if (password && String(password).length >= 3) {
+        const newHashed = await bcrypt.hash(password, 10);
         attrs.password = newHashed; // legacy
         attrs.passwordDigest = newHashed; // principal
       }
       await userRepo.update(id, attrs);
-      setFlash(reply, 'success', 'User updated');
+      setFlash(reply, 'info', 'Usuario actualizado con éxito');
       return reply.redirect('/users');
     });
 
