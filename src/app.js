@@ -53,6 +53,13 @@ export const buildApp = async () => {
     },
   });
 
+  // Ejecutar migraciones al inicio (idempotentes por hasTable)
+  try {
+    await knex.migrate.latest({ directory: '/project/migrations' });
+  } catch (e) {
+    app.log.error({ err: e }, 'Error running migrations on startup');
+  }
+
   // Wrapper para compatibilidad con Fastify 4.x y 5.x listen() API
   // Hexlet tests usan la sintaxis antigua: app.listen(port, host)
   const originalListen = app.listen.bind(app);

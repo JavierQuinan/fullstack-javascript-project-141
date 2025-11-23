@@ -3,12 +3,12 @@ extends ../layout.pug
 block content
   if flash
     .alert(class=`alert-${flash.type}` role='alert')= flash.message
-  h2 Iniciar sesión
+  h2= t('form.signIn')
   form(action='/session' method='post')
     .mb-3
-      label.form-label(for='data_email') Correo
+      label.form-label(for='data_email')= t('form.email')
       input.form-control(type='email' id='data_email' name='data[email]' required)
     .mb-3
-      label.form-label(for='data_password') Contraseña
+      label.form-label(for='data_password')= t('form.password')
       input.form-control(type='password' id='data_password' name='data[password]' required)
-    button.btn.btn-primary(type='submit') Iniciar sesión
+    button.btn.btn-primary(type='submit')= t('form.signIn')

@@ -28,4 +28,11 @@
     "updated": "Tarea actualizada",
     "deleted": "Tarea eliminada"
   }
+  ,
+  "form": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse"
+  }
 }
