@@ -19,10 +19,10 @@ html(lang=lang)
                 a.nav-link(href='/statuses')= t('nav.statuses')
               li.nav-item
                 a.nav-link(href='/tasks')= t('nav.tasks')
+              li.nav-item
+                a.nav-link(href='/users')= t('nav.users')
             ul.navbar-nav
               if currentUser
-                li.nav-item
-                  a.nav-link(href='/users')= t('nav.users')
                 li.nav-item
                   form(action='/session/delete' method='post')
                     button.btn.btn-link(type='submit')= t('nav.logout')
