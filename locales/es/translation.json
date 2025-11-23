@@ -34,7 +34,8 @@
     "password": "Contraseña",
     "signIn": "Entrar",
     "signUp": "Registrarse",
-    "create": "Crear"
+    "create": "Crear",
+    "save": "Guardar"
   },
   "alerts": {
     "signIn": "Has iniciado sesión",

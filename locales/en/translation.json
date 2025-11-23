@@ -27,5 +27,18 @@
     "created": "Task created",
     "updated": "Task updated",
     "deleted": "Task deleted"
+  },
+  "form": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "create": "Create",
+    "save": "Save"
+  },
+  "alerts": {
+    "signIn": "You are logged in",
+    "signOut": "You are logged out",
+    "invalidCredentials": "Invalid credentials"
   }
 }
