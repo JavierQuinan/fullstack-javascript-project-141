@@ -8,6 +8,7 @@ import i18next from 'i18next';
 import Backend from 'i18next-fs-backend';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import fastifyFormbody from '@fastify/formbody';
 import fastifyObjectionjs from 'fastify-objectionjs';
 import knex, { ensureBaseSchema } from './db.js';
 import { initRollbar, getRollbar } from './rollbar.js';
@@ -23,6 +24,9 @@ export const buildApp = async () => {
   const app = Fastify({
     logger: true,
   });
+
+  // Register formbody plugin to parse application/x-www-form-urlencoded
+  await app.register(fastifyFormbody);
 
   // Asegura que /project/migrations exista incluso si Docker cache ignoró el directorio.
   // Los tests de Hexlet lo escanean directamente vía fs.readdir('/project/migrations').
