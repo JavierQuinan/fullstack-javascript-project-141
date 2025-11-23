@@ -561,7 +561,13 @@ export const buildApp = async () => {
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       const flash = getFlash(request, reply);
-      const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, flash });
+      const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { 
+        t, 
+        lang, 
+        flash, 
+        errors: null, 
+        currentUser: request.currentUser 
+      });
       return reply.type('text/html').send(html);
     });
     // Redirigir /session -> /session/new para compatibilidad
@@ -587,7 +593,13 @@ export const buildApp = async () => {
         if (withValidationError) {
           clearCookie(reply, 'flash', { path: '/' });
         }
-        const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, errors, currentUser: request.currentUser });
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { 
+          t, 
+          lang, 
+          errors, 
+          flash: null, 
+          currentUser: request.currentUser 
+        });
         app.log.info({ htmlLength: html.length, hasInvalidFeedback: html.includes('invalid-feedback'), hasIsInvalid: html.includes('is-invalid') }, 'DEBUG: rendered HTML');
         return reply.status(401).type('text/html').send(html);
       };
