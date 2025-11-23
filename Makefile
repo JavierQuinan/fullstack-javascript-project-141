@@ -4,6 +4,10 @@
 setup:
 	@sh scripts/ci-pre-setup.sh || true
 	npm run setup
+	@mkdir -p migrations || true
+	@if [ -f "20240101000001_create_users.cjs" ]; then \
+		mv *.cjs migrations/ 2>/dev/null || true; \
+	fi
 	@if [ -d "code/migrations" ] && [ ! -d "migrations" ]; then \
 		ln -sf code/migrations migrations || cp -r code/migrations migrations; \
 	fi
