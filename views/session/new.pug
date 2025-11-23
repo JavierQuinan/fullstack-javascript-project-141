@@ -6,15 +6,15 @@ block content
     .mb-3
       label.form-label(for='data_email')= t('form.email')
       if errors && errors.email
-        input.form-control.is-invalid(type='email' id='data_email' name='data[email]' value=values && values.email || '' required)
-        .invalid-feedback(style='display: block;')= errors.email
+        input.form-control.is-invalid(type='email' id='data_email' name='data[email]' value=(values ? values.email : '') required)
+        div.invalid-feedback= errors.email
       else
-        input.form-control(type='email' id='data_email' name='data[email]' value=values && values.email || '' required)
+        input.form-control(type='email' id='data_email' name='data[email]' value=(values ? values.email : '') required)
     .mb-3
       label.form-label(for='data_password')= t('form.password')
       if errors && errors.password
         input.form-control.is-invalid(type='password' id='data_password' name='data[password]' required)
-        .invalid-feedback(style='display: block;')= errors.password
+        div.invalid-feedback= errors.password
       else
         input.form-control(type='password' id='data_password' name='data[password]' required)
     button.btn.btn-primary(type='submit')= t('form.signIn')
