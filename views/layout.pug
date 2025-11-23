@@ -24,8 +24,7 @@ html(lang=lang)
                 li.nav-item
                   a.nav-link(href='/users')= t('nav.users')
                 li.nav-item
-                  form(action='/session' method='post')
-                    input(type='hidden' name='_method' value='DELETE')
+                  form(action='/session/delete' method='post')
                     button.btn.btn-link(type='submit')= t('nav.logout')
               else
                 li.nav-item

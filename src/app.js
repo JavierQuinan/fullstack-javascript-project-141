@@ -56,6 +56,25 @@ export const buildApp = async () => {
   // Ejecutar migraciones al inicio (idempotentes por hasTable)
   try {
     await knex.migrate.latest({ directory: '/project/migrations' });
+    // Asegurar columna passwordDigest si no existe
+    const hasUsers = await knex.schema.hasTable('users');
+    if (hasUsers) {
+      const hasPwdDigest = await knex.schema.hasColumn('users', 'passwordDigest');
+      if (!hasPwdDigest) {
+        await knex.schema.table('users', (t) => {
+          t.string('passwordDigest').notNullable().default('');
+        });
+        // Copiar datos existentes si hay columna legacy 'password'
+        try {
+          const rows = await knex('users').select('id', 'password');
+          for (const r of rows) {
+            if (r.password) {
+              await knex('users').where({ id: r.id }).update({ passwordDigest: r.password });
+            }
+          }
+        } catch (_) {}
+      }
+    }
   } catch (e) {
     app.log.error({ err: e }, 'Error running migrations on startup');
   }
@@ -479,9 +498,8 @@ export const buildApp = async () => {
           return reply.redirect('/users/new');
         }
         const hashed = await bcrypt.hash(password, 10);
-        await userRepo.create({ firstName, lastName, email, password: hashed });
+        await userRepo.create({ firstName, lastName, email, passwordDigest: hashed });
         setFlash(reply, 'success', 'User created');
-        // No auto-login para alinearse con tests (deben ver enlaces de login/signup)
         return reply.redirect('/session/new');
       } catch (err) {
         if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
@@ -559,7 +577,7 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', 'Invalid credentials');
         return reply.redirect('/session/new');
       }
-      const ok = await bcrypt.compare(password, user.password);
+      const ok = await bcrypt.compare(password, user.passwordDigest || user.password);
       if (!ok) {
         setFlash(reply, 'danger', 'Invalid credentials');
         return reply.redirect('/session/new');
@@ -570,6 +588,12 @@ export const buildApp = async () => {
     });
 
     app.delete('/session', async (request, reply) => {
+      clearCookie(reply, 'userId', { path: '/' });
+      setFlash(reply, 'success', 'Signed out');
+      return reply.redirect('/');
+    });
+    // Ruta alternativa POST para sign out según requerimiento
+    app.post('/session/delete', async (request, reply) => {
       clearCookie(reply, 'userId', { path: '/' });
       setFlash(reply, 'success', 'Signed out');
       return reply.redirect('/');
