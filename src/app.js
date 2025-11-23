@@ -582,11 +582,13 @@ export const buildApp = async () => {
         const lang = request.query.lng || 'es';
         const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
         const errors = withValidationError ? { email: t('alerts.invalidCredentials') } : null;
+        app.log.info({ withValidationError, errors, hasErrors: !!errors }, 'DEBUG: renderLogin called');
         // Clear any existing flash when showing validation errors
         if (withValidationError) {
           clearCookie(reply, 'flash', { path: '/' });
         }
         const html = pug.renderFile(join(__dirname, '..', 'views', 'session', 'new.pug'), { t, lang, errors, currentUser: request.currentUser });
+        app.log.info({ htmlLength: html.length, hasInvalidFeedback: html.includes('invalid-feedback'), hasIsInvalid: html.includes('is-invalid') }, 'DEBUG: rendered HTML');
         return reply.status(401).type('text/html').send(html);
       };
       if (!user) {
