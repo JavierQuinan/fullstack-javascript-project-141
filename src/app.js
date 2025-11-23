@@ -561,7 +561,8 @@ export const buildApp = async () => {
     });
 
     // Session routes
-    app.get('/session/new', async (request, reply) => {
+    // Login page ahora en /session
+    app.get('/session', async (request, reply) => {
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       const flash = getFlash(request, reply);
@@ -574,28 +575,28 @@ export const buildApp = async () => {
       const { email = '', password = '' } = data;
       const user = await userRepo.findByEmail(email);
       if (!user) {
-        setFlash(reply, 'danger', 'Invalid credentials');
-        return reply.redirect('/session/new');
+        setFlash(reply, 'danger', i18next.t('alerts.invalidCredentials'));
+        return reply.redirect('/session');
       }
       const ok = await bcrypt.compare(password, user.passwordDigest || user.password);
       if (!ok) {
-        setFlash(reply, 'danger', 'Invalid credentials');
-        return reply.redirect('/session/new');
+        setFlash(reply, 'danger', i18next.t('alerts.invalidCredentials'));
+        return reply.redirect('/session');
       }
       setCookie(reply, 'userId', String(user.id), { path: '/' });
-      setFlash(reply, 'success', 'Signed in');
+      setFlash(reply, 'success', i18next.t('alerts.signIn'));
       return reply.redirect('/');
     });
 
     app.delete('/session', async (request, reply) => {
       clearCookie(reply, 'userId', { path: '/' });
-      setFlash(reply, 'success', 'Signed out');
+      setFlash(reply, 'success', i18next.t('alerts.signOut'));
       return reply.redirect('/');
     });
     // Ruta alternativa POST para sign out según requerimiento
     app.post('/session/delete', async (request, reply) => {
       clearCookie(reply, 'userId', { path: '/' });
-      setFlash(reply, 'success', 'Signed out');
+      setFlash(reply, 'success', i18next.t('alerts.signOut'));
       return reply.redirect('/');
     });
 

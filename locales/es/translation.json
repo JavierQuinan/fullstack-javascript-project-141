@@ -35,5 +35,10 @@
     "signIn": "Entrar",
     "signUp": "Registrarse",
     "create": "Crear"
+  },
+  "alerts": {
+    "signIn": "Has iniciado sesión",
+    "signOut": "Has cerrado sesión",
+    "invalidCredentials": "Credenciales inválidas"
   }
 }
