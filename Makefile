@@ -2,6 +2,7 @@
 # Updated: 2025-11-22 - Force cache bust
 
 setup:
+	@sh scripts/ci-pre-setup.sh || true
 	npm run setup
 	@if [ -d "code/migrations" ] && [ ! -d "migrations" ]; then \
 		ln -sf code/migrations migrations || cp -r code/migrations migrations; \
