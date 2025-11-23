@@ -3,6 +3,9 @@
 
 setup:
 	npm run setup
+	@if [ -d "code/migrations" ] && [ ! -d "migrations" ]; then \
+		ln -sf code/migrations migrations || cp -r code/migrations migrations; \
+	fi
 
 install:
 	npm install
