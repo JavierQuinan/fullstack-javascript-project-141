@@ -565,7 +565,8 @@ export const buildApp = async () => {
         t, 
         lang, 
         flash, 
-        errors: null, 
+        errors: null,
+        values: { email: '' },
         currentUser: request.currentUser 
       });
       return reply.type('text/html').send(html);
@@ -588,7 +589,8 @@ export const buildApp = async () => {
         const lang = request.query.lng || 'es';
         const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
         const errors = withValidationError ? { email: t('alerts.invalidCredentials') } : null;
-        app.log.info({ withValidationError, errors, hasErrors: !!errors }, 'DEBUG: renderLogin called');
+        const values = { email };
+        app.log.info({ withValidationError, errors, hasErrors: !!errors, values }, 'DEBUG: renderLogin called');
         // Clear any existing flash when showing validation errors
         if (withValidationError) {
           clearCookie(reply, 'flash', { path: '/' });
@@ -597,11 +599,12 @@ export const buildApp = async () => {
           t, 
           lang, 
           errors, 
+          values,
           flash: null, 
           currentUser: request.currentUser 
         });
         app.log.info({ htmlLength: html.length, hasInvalidFeedback: html.includes('invalid-feedback'), hasIsInvalid: html.includes('is-invalid') }, 'DEBUG: rendered HTML');
-        return reply.status(401).type('text/html').send(html);
+        return reply.code(422).type('text/html').send(html);
       };
       if (!user) {
         app.log.info({ email, success: false, reason: 'user_not_found' }, 'session login attempt');

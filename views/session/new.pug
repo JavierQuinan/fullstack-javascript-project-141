@@ -5,12 +5,16 @@ block content
   form(action='/session' method='post')
     .mb-3
       label.form-label(for='data_email')= t('form.email')
-      input.form-control(type='email' id='data_email' name='data[email]' class=(errors && errors.email ? 'is-invalid' : '') required)
       if errors && errors.email
+        input.form-control.is-invalid(type='email' id='data_email' name='data[email]' value=values && values.email || '' required)
         .invalid-feedback= errors.email
+      else
+        input.form-control(type='email' id='data_email' name='data[email]' value=values && values.email || '' required)
     .mb-3
       label.form-label(for='data_password')= t('form.password')
-      input.form-control(type='password' id='data_password' name='data[password]' class=(errors && errors.password ? 'is-invalid' : '') required)
       if errors && errors.password
+        input.form-control.is-invalid(type='password' id='data_password' name='data[password]' required)
         .invalid-feedback= errors.password
+      else
+        input.form-control(type='password' id='data_password' name='data[password]' required)
     button.btn.btn-primary(type='submit')= t('form.signIn')
