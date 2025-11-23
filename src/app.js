@@ -575,11 +575,6 @@ export const buildApp = async () => {
     app.get('/session', async (_req, reply) => reply.redirect('/session/new'));
 
     app.post('/session', async (request, reply) => {
-      app.log.info({ 
-        body: request.body,
-        contentType: request.headers['content-type'],
-      }, 'DEBUG: POST /session request data');
-      
       // @fastify/formbody parsea data[email] como clave literal "data[email]", no como objeto anidado
       const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
       const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
@@ -590,7 +585,6 @@ export const buildApp = async () => {
         const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
         const errors = withValidationError ? { email: t('alerts.invalidCredentials') } : null;
         const values = { email };
-        app.log.info({ withValidationError, errors, hasErrors: !!errors, values }, 'DEBUG: renderLogin called');
         // Clear any existing flash when showing validation errors
         if (withValidationError) {
           clearCookie(reply, 'flash', { path: '/' });
@@ -603,24 +597,14 @@ export const buildApp = async () => {
           flash: null, 
           currentUser: request.currentUser 
         });
-        app.log.info({ htmlLength: html.length, hasInvalidFeedback: html.includes('invalid-feedback'), hasIsInvalid: html.includes('is-invalid') }, 'DEBUG: rendered HTML');
         return reply.code(422).type('text/html').send(html);
       };
       if (!user) {
-        app.log.info({ email, success: false, reason: 'user_not_found' }, 'session login attempt');
         return renderLogin(true);
       }
       // Compatibilidad: aceptar bcrypt, sha256 y comparación directa (solo si test usa otro método)
       const candidates = [user.passwordDigest, user.password].filter(Boolean);
       const sha256 = crypto.createHash('sha256').update(String(password)).digest('hex');
-      app.log.info({ 
-        email, 
-        userId: user.id,
-        passwordDigest: user.passwordDigest,
-        password_field: user.password,
-        sha256_of_input: sha256,
-        candidates: candidates.length
-      }, 'DEBUG: login credentials check');
       let ok = false;
       for (const c of candidates) {
         if (!c) continue;
@@ -631,10 +615,8 @@ export const buildApp = async () => {
         if (c === password) { ok = true; break; }
       }
       if (!ok) {
-        app.log.info({ email, success: false, userId: user.id, reason: 'invalid_password' }, 'session login attempt');
         return renderLogin(true);
       }
-      app.log.info({ email, success: true, userId: user.id }, 'session login attempt');
       const lang = request.query.lng || 'es';
       const t = i18next.getFixedT(lang);
       setCookie(reply, 'userId', String(user.id), { path: '/' });
