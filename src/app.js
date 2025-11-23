@@ -477,8 +477,12 @@ export const buildApp = async () => {
     });
 
     app.post('/users', async (request, reply) => {
-      const data = request.body && request.body.data ? request.body.data : {};
-      const { firstName = '', lastName = '', email = '', password = '' } = data;
+      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+      const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName) || '';
+      const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName) || '';
+      const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
+      const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
+      
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       
