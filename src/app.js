@@ -478,10 +478,12 @@ export const buildApp = async () => {
       // Helper para renderizar el formulario con errores
       const renderForm = (errors = null) => {
         const values = { firstName, lastName, email };
+        const flash = { type: 'danger', message: 'No se pudo registrar el usuario' };
         const html = pug.renderFile(join(__dirname, '..', 'views', 'users', 'new.pug'), { 
           t, 
           lang, 
           currentUser: request.currentUser,
+          flash,
           errors, 
           values 
         });
@@ -489,8 +491,21 @@ export const buildApp = async () => {
       };
       
       // Validar campos requeridos
-      if (!firstName || !lastName || !email || !password || String(password).length < 3) {
-        const errors = { general: 'Validation error: check required fields' };
+      const errors = {};
+      if (!firstName || firstName.trim() === '') {
+        errors.firstName = 'Debe completar el nombre';
+      }
+      if (!lastName || lastName.trim() === '') {
+        errors.lastName = 'Debe completar el apellido';
+      }
+      if (!email || email.trim() === '') {
+        errors.email = 'Debe completar el correo electrónico';
+      }
+      if (!password || String(password).length < 3) {
+        errors.password = 'La contraseña debe tener al menos 3 caracteres';
+      }
+      
+      if (Object.keys(errors).length > 0) {
         return renderForm(errors);
       }
       
@@ -632,7 +647,7 @@ export const buildApp = async () => {
       // clear cookie
       clearCookie(reply, 'userId', { path: '/' });
       setFlash(reply, 'info', 'Usuario eliminado con éxito');
-      return reply.redirect('/users');
+      return reply.redirect('/');
     });
 
     app.delete('/users/:id', async (request, reply) => {
@@ -649,7 +664,7 @@ export const buildApp = async () => {
       // clear cookie
       clearCookie(reply, 'userId', { path: '/' });
       setFlash(reply, 'info', 'Usuario eliminado con éxito');
-      return reply.redirect('/users');
+      return reply.redirect('/');
     });
 
     // Session routes
