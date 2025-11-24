@@ -550,21 +550,29 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/users');
       }
-      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
-      const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName);
-      const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName);
-      const email = request.body['data[email]'] || (request.body.data && request.body.data.email);
-      const password = request.body['data[password]'] || (request.body.data && request.body.data.password);
-      
-      const attrs = { firstName, lastName, email };
-      if (password && String(password).length >= 3) {
-        const newHashed = await bcrypt.hash(password, 10);
-        attrs.password = newHashed; // legacy
-        attrs.passwordDigest = newHashed; // principal
+      try {
+        // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+        const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName) || '';
+        const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName) || '';
+        const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
+        const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
+        
+        request.log.info({ firstName, lastName, email, hasPassword: !!password }, 'PATCH data received');
+        
+        const attrs = { firstName, lastName, email };
+        if (password && String(password).length >= 3) {
+          const newHashed = await bcrypt.hash(password, 10);
+          attrs.password = newHashed; // legacy
+          attrs.passwordDigest = newHashed; // principal
+        }
+        await userRepo.update(id, attrs);
+        setFlash(reply, 'info', 'Usuario actualizado con éxito');
+        return reply.redirect('/users');
+      } catch (err) {
+        request.log.error(err, 'Error updating user');
+        setFlash(reply, 'danger', 'Error updating user');
+        return reply.redirect('/users');
       }
-      await userRepo.update(id, attrs);
-      setFlash(reply, 'info', 'Usuario actualizado con éxito');
-      return reply.redirect('/users');
     });
 
     app.delete('/users/:id', async (request, reply) => {
