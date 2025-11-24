@@ -546,6 +546,13 @@ export const buildApp = async () => {
         return reply.redirect('/users');
       }
       try {
+        // Obtener usuario actual
+        const currentUserData = await userRepo.findById(id);
+        if (!currentUserData) {
+          setFlash(reply, 'danger', 'User not found');
+          return reply.redirect('/users');
+        }
+        
         // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
         const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName) || '';
         const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName) || '';
@@ -556,9 +563,9 @@ export const buildApp = async () => {
           firstName, 
           lastName, 
           email, 
+          currentEmail: currentUserData.email,
           hasPassword: !!password,
-          passwordLength: password ? password.length : 0,
-          rawBody: request.body
+          passwordLength: password ? password.length : 0
         }, 'User update data received');
         
         // Validación básica
@@ -566,6 +573,16 @@ export const buildApp = async () => {
           request.log.warn({ firstName, lastName, email }, 'Missing required fields');
           setFlash(reply, 'danger', 'All fields are required');
           return reply.redirect(`/users/${id}/edit`);
+        }
+        
+        // Verificar si el email cambió y si ya existe en otro usuario
+        if (email !== currentUserData.email) {
+          const existingUser = await userRepo.findByEmail(email);
+          if (existingUser && String(existingUser.id) !== String(id)) {
+            request.log.warn({ email, existingUserId: existingUser.id }, 'Email already in use by another user');
+            setFlash(reply, 'danger', 'Email already exists');
+            return reply.redirect(`/users/${id}/edit`);
+          }
         }
         
         const attrs = { firstName, lastName, email };
@@ -585,17 +602,9 @@ export const buildApp = async () => {
         request.log.error({ 
           err, 
           message: err.message, 
-          stack: err.stack,
-          code: err.code,
-          errno: err.errno
+          stack: err.stack
         }, 'Error updating user');
-        
-        // Handle specific database errors
-        if (err.code === 'ER_DUP_ENTRY' || err.errno === 1062 || err.message?.includes('UNIQUE')) {
-          setFlash(reply, 'danger', 'Email already exists');
-        } else {
-          setFlash(reply, 'danger', 'Error updating user');
-        }
+        setFlash(reply, 'danger', 'Error updating user');
         return reply.redirect('/users');
       }
     });
