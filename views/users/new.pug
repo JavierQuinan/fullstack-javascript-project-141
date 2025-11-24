@@ -2,7 +2,7 @@ extends ../layout.pug
 
 block content
   h2= t('form.signUp')
-  form(action='/users' method='post')
+  form(action='/users' method='post' novalidate)
     .mb-3
       label.form-label(for='data_firstName') Nombre
       if errors && errors.firstName
