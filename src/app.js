@@ -555,7 +555,14 @@ export const buildApp = async () => {
         const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
         const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
         
-        request.log.info({ firstName, lastName, email, hasPassword: !!password }, 'POST/PATCH data received');
+        request.log.info({ 
+          firstName, 
+          lastName, 
+          email, 
+          hasPassword: !!password,
+          passwordLength: password ? password.length : 0,
+          fullBody: JSON.stringify(request.body)
+        }, 'POST/PATCH data received');
         
         const attrs = { firstName, lastName, email };
         if (password && String(password).length >= 3) {
@@ -563,11 +570,15 @@ export const buildApp = async () => {
           attrs.password = newHashed; // legacy
           attrs.passwordDigest = newHashed; // principal
         }
+        
+        request.log.info({ id, attrs: JSON.stringify(attrs) }, 'About to update user');
         await userRepo.update(id, attrs);
+        request.log.info({ id }, 'User updated successfully');
+        
         setFlash(reply, 'info', 'Usuario actualizado con éxito');
         return reply.redirect('/users');
       } catch (err) {
-        request.log.error(err, 'Error updating user');
+        request.log.error({ err, message: err.message, stack: err.stack }, 'Error updating user');
         setFlash(reply, 'danger', 'Error updating user');
         return reply.redirect('/users');
       }
