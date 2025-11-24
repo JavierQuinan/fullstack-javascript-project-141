@@ -617,6 +617,24 @@ export const buildApp = async () => {
       }
     });
 
+    // POST route for delete form (workaround for Fastify routing before method override)
+    app.post('/users/:id/delete', async (request, reply) => {
+      const { id } = request.params;
+      if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/users');
+      }
+      const ok = await userRepo.remove(id);
+      if (!ok) {
+        setFlash(reply, 'danger', 'Cannot delete user with assigned tasks');
+        return reply.redirect('/users');
+      }
+      // clear cookie
+      clearCookie(reply, 'userId', { path: '/' });
+      setFlash(reply, 'info', 'Usuario eliminado con éxito');
+      return reply.redirect('/');
+    });
+
     app.delete('/users/:id', async (request, reply) => {
       const { id } = request.params;
       if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
@@ -630,7 +648,7 @@ export const buildApp = async () => {
       }
       // clear cookie
       clearCookie(reply, 'userId', { path: '/' });
-      setFlash(reply, 'success', 'User deleted');
+      setFlash(reply, 'info', 'Usuario eliminado con éxito');
       return reply.redirect('/');
     });
 
