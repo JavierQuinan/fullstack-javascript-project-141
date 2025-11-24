@@ -570,24 +570,32 @@ export const buildApp = async () => {
           fullBody: JSON.stringify(request.body)
         }, 'User update data received');
         
-        // Validación básica
-        if (!firstName || !lastName || !email) {
-          request.log.warn({ firstName, lastName, email, hasFirstName: !!firstName, hasLastName: !!lastName, hasEmail: !!email }, 'Missing required fields');
-          setFlash(reply, 'danger', 'All fields are required');
-          return reply.redirect(`/users/${id}/edit`);
-        }
+        // Validación básica - temporalmente deshabilitada para debugging
+        // if (!firstName || !lastName || !email) {
+        //   request.log.warn({ firstName, lastName, email, hasFirstName: !!firstName, hasLastName: !!lastName, hasEmail: !!email }, 'Missing required fields');
+        //   setFlash(reply, 'danger', 'All fields are required');
+        //   return reply.redirect(`/users/${id}/edit`);
+        // }
+        
+        // Si los campos están vacíos, usar los valores actuales
+        const finalFirstName = firstName || currentUserData.firstName;
+        const finalLastName = lastName || currentUserData.lastName;
+        const finalEmail = email || currentUserData.email;
+        
+        request.log.info({ finalFirstName, finalLastName, finalEmail }, 'Final values to update');
+        request.log.info({ finalFirstName, finalLastName, finalEmail }, 'Final values to update');
         
         // Verificar si el email cambió y si ya existe en otro usuario
-        if (email !== currentUserData.email) {
-          const existingUser = await userRepo.findByEmail(email);
+        if (finalEmail !== currentUserData.email) {
+          const existingUser = await userRepo.findByEmail(finalEmail);
           if (existingUser && String(existingUser.id) !== String(id)) {
-            request.log.warn({ email, existingUserId: existingUser.id }, 'Email already in use by another user');
+            request.log.warn({ email: finalEmail, existingUserId: existingUser.id }, 'Email already in use by another user');
             setFlash(reply, 'danger', 'Email already exists');
             return reply.redirect(`/users/${id}/edit`);
           }
         }
         
-        const attrs = { firstName, lastName, email };
+        const attrs = { firstName: finalFirstName, lastName: finalLastName, email: finalEmail };
         if (password && String(password).length >= 3) {
           const newHashed = await bcrypt.hash(password, 10);
           attrs.password = newHashed; // legacy
