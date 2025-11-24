@@ -179,19 +179,7 @@ export const buildApp = async () => {
     }
   };
 
-  // Method override for forms: _method
-  app.addHook('preHandler', async (request, reply) => {
-    if (request.method === 'POST' && request.body && request.body._method) {
-      const m = String(request.body._method).toUpperCase();
-      if (['PATCH', 'DELETE', 'PUT'].includes(m)) {
-        request.log.info({ originalMethod: request.method, overrideMethod: m, url: request.url }, 'Method override');
-        request.raw.method = m;
-        request.method = m;
-      }
-    }
-  });
-
-  // Middleware to add template helpers
+  // Middleware to add template helpers and handle method override
   app.addHook('onRequest', async (request, reply) => {
     // parse cookies into request.cookies
     const rawCookies = request.headers && request.headers.cookie;
@@ -541,6 +529,48 @@ export const buildApp = async () => {
       const flash = getFlash(request, reply);
       const html = pug.renderFile(join(__dirname, '..', 'views', 'users', 'edit.pug'), { t, lang, user, flash });
       return reply.type('text/html').send(html);
+    });
+
+    // Ruta POST para /users/:id que maneja el method override manualmente
+    app.post('/users/:id', async (request, reply) => {
+      // Este POST actúa como PATCH cuando viene con _method
+      const { id } = request.params;
+      request.log.info({ 
+        id, 
+        userId: request.currentUser?.id,
+        hasBody: !!request.body,
+        bodyKeys: request.body ? Object.keys(request.body) : [],
+        method: request.method,
+        _method: request.body?._method
+      }, 'POST /users/:id called (acting as PATCH)');
+      
+      if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/users');
+      }
+      try {
+        // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+        const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName) || '';
+        const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName) || '';
+        const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
+        const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
+        
+        request.log.info({ firstName, lastName, email, hasPassword: !!password }, 'POST/PATCH data received');
+        
+        const attrs = { firstName, lastName, email };
+        if (password && String(password).length >= 3) {
+          const newHashed = await bcrypt.hash(password, 10);
+          attrs.password = newHashed; // legacy
+          attrs.passwordDigest = newHashed; // principal
+        }
+        await userRepo.update(id, attrs);
+        setFlash(reply, 'info', 'Usuario actualizado con éxito');
+        return reply.redirect('/users');
+      } catch (err) {
+        request.log.error(err, 'Error updating user');
+        setFlash(reply, 'danger', 'Error updating user');
+        return reply.redirect('/users');
+      }
     });
 
     app.patch('/users/:id', async (request, reply) => {
