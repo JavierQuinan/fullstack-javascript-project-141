@@ -557,8 +557,16 @@ export const buildApp = async () => {
           lastName, 
           email, 
           hasPassword: !!password,
-          passwordLength: password ? password.length : 0
+          passwordLength: password ? password.length : 0,
+          rawBody: request.body
         }, 'User update data received');
+        
+        // Validación básica
+        if (!firstName || !lastName || !email) {
+          request.log.warn({ firstName, lastName, email }, 'Missing required fields');
+          setFlash(reply, 'danger', 'All fields are required');
+          return reply.redirect(`/users/${id}/edit`);
+        }
         
         const attrs = { firstName, lastName, email };
         if (password && String(password).length >= 3) {
@@ -574,8 +582,20 @@ export const buildApp = async () => {
         setFlash(reply, 'info', 'Usuario actualizado con éxito');
         return reply.redirect('/users');
       } catch (err) {
-        request.log.error({ err, message: err.message, stack: err.stack }, 'Error updating user');
-        setFlash(reply, 'danger', 'Error updating user');
+        request.log.error({ 
+          err, 
+          message: err.message, 
+          stack: err.stack,
+          code: err.code,
+          errno: err.errno
+        }, 'Error updating user');
+        
+        // Handle specific database errors
+        if (err.code === 'ER_DUP_ENTRY' || err.errno === 1062 || err.message?.includes('UNIQUE')) {
+          setFlash(reply, 'danger', 'Email already exists');
+        } else {
+          setFlash(reply, 'danger', 'Error updating user');
+        }
         return reply.redirect('/users');
       }
     });
