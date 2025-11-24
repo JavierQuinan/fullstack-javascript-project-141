@@ -565,12 +565,14 @@ export const buildApp = async () => {
           email, 
           currentEmail: currentUserData.email,
           hasPassword: !!password,
-          passwordLength: password ? password.length : 0
+          passwordLength: password ? password.length : 0,
+          bodyKeys: Object.keys(request.body),
+          fullBody: JSON.stringify(request.body)
         }, 'User update data received');
         
         // Validación básica
         if (!firstName || !lastName || !email) {
-          request.log.warn({ firstName, lastName, email }, 'Missing required fields');
+          request.log.warn({ firstName, lastName, email, hasFirstName: !!firstName, hasLastName: !!lastName, hasEmail: !!email }, 'Missing required fields');
           setFlash(reply, 'danger', 'All fields are required');
           return reply.redirect(`/users/${id}/edit`);
         }
