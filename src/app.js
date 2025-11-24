@@ -632,7 +632,7 @@ export const buildApp = async () => {
       // clear cookie
       clearCookie(reply, 'userId', { path: '/' });
       setFlash(reply, 'info', 'Usuario eliminado con éxito');
-      return reply.redirect('/');
+      return reply.redirect('/users');
     });
 
     app.delete('/users/:id', async (request, reply) => {
@@ -649,7 +649,7 @@ export const buildApp = async () => {
       // clear cookie
       clearCookie(reply, 'userId', { path: '/' });
       setFlash(reply, 'info', 'Usuario eliminado con éxito');
-      return reply.redirect('/');
+      return reply.redirect('/users');
     });
 
     // Session routes
