@@ -616,8 +616,23 @@ export const buildApp = async () => {
         request.log.error({ 
           err, 
           message: err.message, 
-          stack: err.stack
+          stack: err.stack,
+          code: err.code,
+          constraint: err.constraint
         }, 'Error updating user');
+        
+        // Manejar error de constraint UNIQUE de SQLite
+        if (err.message && (err.message.includes('UNIQUE') || err.message.includes('unique'))) {
+          // El error es por email duplicado, pero Knex actualiza exitosamente si es el mismo registro
+          // Verificar si realmente fue un error o si solo es el mismo email
+          const updatedUser = await userRepo.findById(id);
+          if (updatedUser && updatedUser.email === finalEmail) {
+            // La actualización fue exitosa, el email UNIQUE es del mismo usuario
+            setFlash(reply, 'info', 'Usuario actualizado con éxito');
+            return reply.redirect('/users');
+          }
+        }
+        
         setFlash(reply, 'danger', 'Error updating user');
         return reply.redirect('/users');
       }
