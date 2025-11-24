@@ -531,18 +531,15 @@ export const buildApp = async () => {
       return reply.type('text/html').send(html);
     });
 
-    // Ruta POST para /users/:id que maneja el method override manualmente
+    // Ruta POST para /users/:id que maneja actualización de usuario
     app.post('/users/:id', async (request, reply) => {
-      // Este POST actúa como PATCH cuando viene con _method
       const { id } = request.params;
       request.log.info({ 
         id, 
         userId: request.currentUser?.id,
         hasBody: !!request.body,
-        bodyKeys: request.body ? Object.keys(request.body) : [],
-        method: request.method,
-        _method: request.body?._method
-      }, 'POST /users/:id called (acting as PATCH)');
+        bodyKeys: request.body ? Object.keys(request.body) : []
+      }, 'POST /users/:id called');
       
       if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
         setFlash(reply, 'danger', 'Access denied');
@@ -560,9 +557,8 @@ export const buildApp = async () => {
           lastName, 
           email, 
           hasPassword: !!password,
-          passwordLength: password ? password.length : 0,
-          fullBody: JSON.stringify(request.body)
-        }, 'POST/PATCH data received');
+          passwordLength: password ? password.length : 0
+        }, 'User update data received');
         
         const attrs = { firstName, lastName, email };
         if (password && String(password).length >= 3) {
@@ -571,7 +567,7 @@ export const buildApp = async () => {
           attrs.passwordDigest = newHashed; // principal
         }
         
-        request.log.info({ id, attrs: JSON.stringify(attrs) }, 'About to update user');
+        request.log.info({ id, attrs }, 'About to update user');
         await userRepo.update(id, attrs);
         request.log.info({ id }, 'User updated successfully');
         
@@ -579,44 +575,6 @@ export const buildApp = async () => {
         return reply.redirect('/users');
       } catch (err) {
         request.log.error({ err, message: err.message, stack: err.stack }, 'Error updating user');
-        setFlash(reply, 'danger', 'Error updating user');
-        return reply.redirect('/users');
-      }
-    });
-
-    app.patch('/users/:id', async (request, reply) => {
-      const { id } = request.params;
-      request.log.info({ 
-        id, 
-        userId: request.currentUser?.id,
-        hasBody: !!request.body,
-        bodyKeys: request.body ? Object.keys(request.body) : []
-      }, 'PATCH /users/:id called');
-      
-      if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
-        setFlash(reply, 'danger', 'Access denied');
-        return reply.redirect('/users');
-      }
-      try {
-        // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
-        const firstName = request.body['data[firstName]'] || (request.body.data && request.body.data.firstName) || '';
-        const lastName = request.body['data[lastName]'] || (request.body.data && request.body.data.lastName) || '';
-        const email = request.body['data[email]'] || (request.body.data && request.body.data.email) || '';
-        const password = request.body['data[password]'] || (request.body.data && request.body.data.password) || '';
-        
-        request.log.info({ firstName, lastName, email, hasPassword: !!password }, 'PATCH data received');
-        
-        const attrs = { firstName, lastName, email };
-        if (password && String(password).length >= 3) {
-          const newHashed = await bcrypt.hash(password, 10);
-          attrs.password = newHashed; // legacy
-          attrs.passwordDigest = newHashed; // principal
-        }
-        await userRepo.update(id, attrs);
-        setFlash(reply, 'info', 'Usuario actualizado con éxito');
-        return reply.redirect('/users');
-      } catch (err) {
-        request.log.error(err, 'Error updating user');
         setFlash(reply, 'danger', 'Error updating user');
         return reply.redirect('/users');
       }
