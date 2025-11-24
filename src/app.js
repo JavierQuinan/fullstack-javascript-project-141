@@ -184,6 +184,7 @@ export const buildApp = async () => {
     if (request.method === 'POST' && request.body && request.body._method) {
       const m = String(request.body._method).toUpperCase();
       if (['PATCH', 'DELETE', 'PUT'].includes(m)) {
+        request.log.info({ originalMethod: request.method, overrideMethod: m, url: request.url }, 'Method override');
         request.raw.method = m;
         request.method = m;
       }
@@ -544,6 +545,7 @@ export const buildApp = async () => {
 
     app.patch('/users/:id', async (request, reply) => {
       const { id } = request.params;
+      request.log.info({ id, userId: request.currentUser?.id }, 'PATCH /users/:id called');
       if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/users');
