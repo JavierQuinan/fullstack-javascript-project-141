@@ -545,7 +545,13 @@ export const buildApp = async () => {
 
     app.patch('/users/:id', async (request, reply) => {
       const { id } = request.params;
-      request.log.info({ id, userId: request.currentUser?.id }, 'PATCH /users/:id called');
+      request.log.info({ 
+        id, 
+        userId: request.currentUser?.id,
+        hasBody: !!request.body,
+        bodyKeys: request.body ? Object.keys(request.body) : []
+      }, 'PATCH /users/:id called');
+      
       if (!request.currentUser || String(request.currentUser.id) !== String(id)) {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/users');
