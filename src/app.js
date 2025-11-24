@@ -583,21 +583,6 @@ export const buildApp = async () => {
         const finalEmail = email || currentUserData.email;
         
         request.log.info({ finalFirstName, finalLastName, finalEmail }, 'Final values to update');
-        request.log.info({ finalFirstName, finalLastName, finalEmail }, 'Final values to update');
-        
-        // Verificar si el email cambió y si ya existe en otro usuario
-        // NOTA: Temporalmente deshabilitado para permitir que pasen los tests
-        // En producción, esta validación debería estar activa
-        /*
-        if (finalEmail !== currentUserData.email) {
-          const existingUser = await userRepo.findByEmail(finalEmail);
-          if (existingUser && String(existingUser.id) !== String(id)) {
-            request.log.warn({ email: finalEmail, existingUserId: existingUser.id }, 'Email already in use by another user');
-            setFlash(reply, 'danger', 'Email already exists');
-            return reply.redirect(`/users/${id}/edit`);
-          }
-        }
-        */
         
         const attrs = { firstName: finalFirstName, lastName: finalLastName, email: finalEmail };
         if (password && String(password).length >= 3) {
@@ -620,18 +605,6 @@ export const buildApp = async () => {
           code: err.code,
           constraint: err.constraint
         }, 'Error updating user');
-        
-        // Manejar error de constraint UNIQUE de SQLite
-        if (err.message && (err.message.includes('UNIQUE') || err.message.includes('unique'))) {
-          // El error es por email duplicado, pero Knex actualiza exitosamente si es el mismo registro
-          // Verificar si realmente fue un error o si solo es el mismo email
-          const updatedUser = await userRepo.findById(id);
-          if (updatedUser && updatedUser.email === finalEmail) {
-            // La actualización fue exitosa, el email UNIQUE es del mismo usuario
-            setFlash(reply, 'info', 'Usuario actualizado con éxito');
-            return reply.redirect('/users');
-          }
-        }
         
         setFlash(reply, 'danger', 'Error updating user');
         return reply.redirect('/users');
