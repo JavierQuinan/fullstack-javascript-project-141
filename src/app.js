@@ -584,14 +584,20 @@ export const buildApp = async () => {
         
         request.log.info({ finalFirstName, finalLastName, finalEmail }, 'Final values to update');
         
-        const attrs = { firstName: finalFirstName, lastName: finalLastName, email: finalEmail };
+        const attrs = { firstName: finalFirstName, lastName: finalLastName };
+        
+        // Solo incluir email si es diferente al actual
+        if (finalEmail !== currentUserData.email) {
+          attrs.email = finalEmail;
+        }
+        
         if (password && String(password).length >= 3) {
           const newHashed = await bcrypt.hash(password, 10);
           attrs.password = newHashed; // legacy
           attrs.passwordDigest = newHashed; // principal
         }
         
-        request.log.info({ id, attrs }, 'About to update user');
+        request.log.info({ id, attrs, emailChanged: finalEmail !== currentUserData.email }, 'About to update user');
         await userRepo.update(id, attrs);
         request.log.info({ id }, 'User updated successfully');
         
