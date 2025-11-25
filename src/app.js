@@ -302,15 +302,20 @@ export const buildApp = async () => {
 
     // POST route for update form (workaround for Fastify routing before method override)
     app.post('/statuses/:id', async (request, reply) => {
+      console.log('=== POST /statuses/:id REACHED ===');
       if (!request.currentUser) {
+        console.log('No current user, redirecting to login');
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/session/new');
       }
       const { id } = request.params;
       console.log('Status update request body:', JSON.stringify(request.body));
+      console.log('Body keys:', Object.keys(request.body));
       // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
-      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
-      console.log('Parsed name:', name, 'isEmpty:', !name);
+      const rawName1 = request.body['data[name]'];
+      const rawName2 = request.body.data && request.body.data.name;
+      const name = (rawName1 || rawName2 || '').trim();
+      console.log('Parse attempts - rawName1:', rawName1, 'rawName2:', rawName2, 'final name:', name, 'isEmpty:', !name);
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
