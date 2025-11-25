@@ -276,7 +276,7 @@ export const buildApp = async () => {
       }
       
       if (Object.keys(errors).length > 0) {
-        const flash = { danger: 'No se pudo crear el estado' };
+        const flash = { type: 'danger', message: 'No se pudo crear el estado' };
         const html = pug.renderFile(join(__dirname, '..', 'views', 'statuses', 'new.pug'), {
           t,
           lang,
