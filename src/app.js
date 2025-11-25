@@ -315,12 +315,14 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
+      console.log('Updating status', id, 'with name:', name);
       try {
         await statusRepo.update(id, { name });
         setFlash(reply, 'info', 'Estado actualizado con éxito');
         return reply.redirect('/statuses');
       } catch (err) {
-        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
+        console.error('Status update error:', err.message, 'Code:', err.code);
+        if (err.code === 'SQLITE_CONSTRAINT' || String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
           setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
           return reply.redirect(`/statuses/${id}/edit`);
         }
