@@ -306,33 +306,19 @@ export const buildApp = async () => {
         return reply.redirect('/session/new');
       }
       const { id } = request.params;
-      console.log('POST /statuses/:id called, id:', id);
       // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
       const rawName1 = request.body['data[name]'];
       const rawName2 = request.body.data && request.body.data.name;
       const name = (rawName1 || rawName2 || '').trim();
-      console.log('Body:', JSON.stringify(request.body), 'name:', name);
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
-        console.log('Name is empty, redirecting to edit');
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
-      try {
-        console.log('Updating status', id, 'with name:', name);
-        await statusRepo.update(id, { name });
-        console.log('Update successful, redirecting to /statuses');
-        setFlash(reply, 'info', 'Estado actualizado con éxito');
-        return reply.redirect('/statuses');
-      } catch (err) {
-        console.log('Error updating status:', err.message);
-        if (err.code === 'SQLITE_CONSTRAINT' || err.message.includes('UNIQUE')) {
-          setFlash(reply, 'danger', 'El nombre del estado ya existe');
-          return reply.redirect(`/statuses/${id}/edit`);
-        }
-        throw err;
-      }
+      await statusRepo.update(id, { name });
+      setFlash(reply, 'info', 'Estado actualizado con éxito');
+      return reply.redirect('/statuses');
     });
 
     app.patch('/statuses/:id', async (request, reply) => {
