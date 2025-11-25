@@ -268,9 +268,24 @@ export const buildApp = async () => {
       const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      
+      // Validation
+      const errors = {};
       if (!name) {
-        setFlash(reply, 'danger', 'El nombre del estado es requerido');
-        return reply.redirect('/statuses/new');
+        errors.name = 'Nombre is required';
+      }
+      
+      if (Object.keys(errors).length > 0) {
+        const flash = { danger: 'No se pudo crear el estado' };
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'statuses', 'new.pug'), {
+          t,
+          lang,
+          status: { name },
+          errors,
+          flash,
+          currentUser: request.currentUser
+        });
+        return reply.status(422).type('text/html').send(html);
       }
       
       // Check if status already exists (idempotent create for tests)
