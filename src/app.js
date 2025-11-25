@@ -307,11 +307,14 @@ export const buildApp = async () => {
         return reply.redirect('/session/new');
       }
       const { id } = request.params;
+      console.log('Status update request body:', JSON.stringify(request.body));
       // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
       const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
+      console.log('Parsed name:', name, 'isEmpty:', !name);
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
+        console.log('Name is empty, redirecting to edit');
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
