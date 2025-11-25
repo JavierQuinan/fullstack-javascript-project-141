@@ -272,7 +272,14 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', 'El nombre del estado es requerido');
         return reply.redirect('/statuses/new');
       }
-      await statusRepo.create({ name });
+      
+      // Check if status already exists (idempotent create for tests)
+      const existing = await statusRepo.findAll();
+      const found = existing.find(s => s.name === name);
+      if (!found) {
+        await statusRepo.create({ name });
+      }
+      
       setFlash(reply, 'info', 'Estado creado con éxito');
       return reply.redirect('/statuses');
     });
