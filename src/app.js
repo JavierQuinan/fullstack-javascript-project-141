@@ -306,17 +306,22 @@ export const buildApp = async () => {
         return reply.redirect('/session/new');
       }
       const { id } = request.params;
+      console.log('POST /statuses/:id called, id:', id);
       // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
       const rawName1 = request.body['data[name]'];
       const rawName2 = request.body.data && request.body.data.name;
       const name = (rawName1 || rawName2 || '').trim();
+      console.log('Body:', JSON.stringify(request.body), 'name:', name);
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
+        console.log('Name is empty, redirecting to edit');
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
+      console.log('Updating status', id, 'with name:', name);
       await statusRepo.update(id, { name });
+      console.log('Update successful, redirecting to /statuses');
       setFlash(reply, 'info', 'Estado actualizado con éxito');
       return reply.redirect('/statuses');
     });
