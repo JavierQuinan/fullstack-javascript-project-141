@@ -1,10 +1,8 @@
 extends ../layout.pug
 
 block content
-  if flash
-    .alert(class=`alert-${flash.type}` role='alert')= flash.message
   h2 Nuevo estado
-  form(action='/statuses' method='post')
+  form(action='/statuses' method='post' novalidate)
     .mb-3
       label.form-label(for='data_name') Nombre
       input.form-control(type='text' id='data_name' name='data[name]' required minlength='1')
