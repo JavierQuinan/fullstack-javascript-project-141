@@ -264,8 +264,8 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/session/new');
       }
-      const data = request.body && request.body.data ? request.body.data : {};
-      const name = (data.name || '').trim();
+      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
