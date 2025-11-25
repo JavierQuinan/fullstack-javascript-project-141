@@ -269,20 +269,12 @@ export const buildApp = async () => {
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
-        setFlash(reply, 'danger', t('status.name') + ' is required');
+        setFlash(reply, 'danger', 'El nombre del estado es requerido');
         return reply.redirect('/statuses/new');
       }
-      try {
-        await statusRepo.create({ name });
-        setFlash(reply, 'info', 'Estado creado con éxito');
-        return reply.redirect('/statuses');
-      } catch (err) {
-        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
-          setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
-          return reply.redirect('/statuses/new');
-        }
-        throw err;
-      }
+      await statusRepo.create({ name });
+      setFlash(reply, 'info', 'Estado creado con éxito');
+      return reply.redirect('/statuses');
     });
 
     app.get('/statuses/:id/edit', async (request, reply) => {
@@ -302,40 +294,24 @@ export const buildApp = async () => {
 
     // POST route for update form (workaround for Fastify routing before method override)
     app.post('/statuses/:id', async (request, reply) => {
-      console.log('=== POST /statuses/:id REACHED ===');
       if (!request.currentUser) {
-        console.log('No current user, redirecting to login');
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/session/new');
       }
       const { id } = request.params;
-      console.log('Status update request body:', JSON.stringify(request.body));
-      console.log('Body keys:', Object.keys(request.body));
       // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
       const rawName1 = request.body['data[name]'];
       const rawName2 = request.body.data && request.body.data.name;
       const name = (rawName1 || rawName2 || '').trim();
-      console.log('Parse attempts - rawName1:', rawName1, 'rawName2:', rawName2, 'final name:', name, 'isEmpty:', !name);
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
-        console.log('Name is empty, redirecting to edit');
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
-      console.log('Updating status', id, 'with name:', name);
-      try {
-        await statusRepo.update(id, { name });
-        setFlash(reply, 'info', 'Estado actualizado con éxito');
-        return reply.redirect('/statuses');
-      } catch (err) {
-        console.error('Status update error:', err.message, 'Code:', err.code);
-        if (err.code === 'SQLITE_CONSTRAINT' || String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
-          setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
-          return reply.redirect(`/statuses/${id}/edit`);
-        }
-        throw err;
-      }
+      await statusRepo.update(id, { name });
+      setFlash(reply, 'info', 'Estado actualizado con éxito');
+      return reply.redirect('/statuses');
     });
 
     app.patch('/statuses/:id', async (request, reply) => {
@@ -352,17 +328,9 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
-      try {
-        await statusRepo.update(id, { name });
-        setFlash(reply, 'info', 'Estado actualizado con éxito');
-        return reply.redirect('/statuses');
-      } catch (err) {
-        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
-          setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
-          return reply.redirect(`/statuses/${id}/edit`);
-        }
-        throw err;
-      }
+      await statusRepo.update(id, { name });
+      setFlash(reply, 'info', 'Estado actualizado con éxito');
+      return reply.redirect('/statuses');
     });
     app.delete('/statuses/:id', async (request, reply) => {
       if (!request.currentUser) {
