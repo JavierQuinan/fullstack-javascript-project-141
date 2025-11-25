@@ -273,7 +273,7 @@ export const buildApp = async () => {
         return reply.redirect('/statuses/new');
       }
       await statusRepo.create({ name });
-      setFlash(reply, 'success', t('status.created'));
+      setFlash(reply, 'info', 'Estado creado con éxito');
       return reply.redirect('/statuses');
     });
 
