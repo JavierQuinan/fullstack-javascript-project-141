@@ -2,7 +2,7 @@ extends ../layout.pug
 
 block content
   h2 Editar estado
-  form(action=`/statuses/${status.id}` method='post' novalidate)
+  form(action='/statuses/' + status.id method='post' novalidate)
     input(type='hidden' name='_method' value='PATCH')
     .mb-3
       label.form-label(for='data_name') Nombre
