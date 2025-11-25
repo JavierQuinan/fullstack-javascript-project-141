@@ -272,9 +272,17 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect('/statuses/new');
       }
-      await statusRepo.create({ name });
-      setFlash(reply, 'info', 'Estado creado con éxito');
-      return reply.redirect('/statuses');
+      try {
+        await statusRepo.create({ name });
+        setFlash(reply, 'info', 'Estado creado con éxito');
+        return reply.redirect('/statuses');
+      } catch (err) {
+        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
+          setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
+          return reply.redirect('/statuses/new');
+        }
+        throw err;
+      }
     });
 
     app.get('/statuses/:id/edit', async (request, reply) => {
@@ -307,9 +315,17 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
-      await statusRepo.update(id, { name });
-      setFlash(reply, 'info', 'Estado actualizado con éxito');
-      return reply.redirect('/statuses');
+      try {
+        await statusRepo.update(id, { name });
+        setFlash(reply, 'info', 'Estado actualizado con éxito');
+        return reply.redirect('/statuses');
+      } catch (err) {
+        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
+          setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
+          return reply.redirect(`/statuses/${id}/edit`);
+        }
+        throw err;
+      }
     });
 
     app.patch('/statuses/:id', async (request, reply) => {
@@ -326,9 +342,17 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
-      await statusRepo.update(id, { name });
-      setFlash(reply, 'info', 'Estado actualizado con éxito');
-      return reply.redirect('/statuses');
+      try {
+        await statusRepo.update(id, { name });
+        setFlash(reply, 'info', 'Estado actualizado con éxito');
+        return reply.redirect('/statuses');
+      } catch (err) {
+        if (String(err.message).includes('UNIQUE') || String(err.message).includes('unique')) {
+          setFlash(reply, 'danger', 'Estado con ese nombre ya existe');
+          return reply.redirect(`/statuses/${id}/edit`);
+        }
+        throw err;
+      }
     });
     app.delete('/statuses/:id', async (request, reply) => {
       if (!request.currentUser) {
