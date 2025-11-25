@@ -292,14 +292,15 @@ export const buildApp = async () => {
       return reply.type('text/html').send(html);
     });
 
-    app.patch('/statuses/:id', async (request, reply) => {
+    // POST route for update form (workaround for Fastify routing before method override)
+    app.post('/statuses/:id', async (request, reply) => {
       if (!request.currentUser) {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/session/new');
       }
       const { id } = request.params;
-      const data = request.body && request.body.data ? request.body.data : {};
-      const name = (data.name || '').trim();
+      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name) {
@@ -307,7 +308,26 @@ export const buildApp = async () => {
         return reply.redirect(`/statuses/${id}/edit`);
       }
       await statusRepo.update(id, { name });
-      setFlash(reply, 'success', t('status.updated'));
+      setFlash(reply, 'info', 'Estado actualizado con éxito');
+      return reply.redirect('/statuses');
+    });
+
+    app.patch('/statuses/:id', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const { id } = request.params;
+      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      if (!name) {
+        setFlash(reply, 'danger', t('status.name') + ' is required');
+        return reply.redirect(`/statuses/${id}/edit`);
+      }
+      await statusRepo.update(id, { name });
+      setFlash(reply, 'info', 'Estado actualizado con éxito');
       return reply.redirect('/statuses');
     });
     app.delete('/statuses/:id', async (request, reply) => {
