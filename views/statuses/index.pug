@@ -15,9 +15,8 @@ block content
           td= status.name
           td
             if currentUser
-              a.btn.btn-sm.btn-outline-primary(href=`/statuses/${status.id}/edit`) Actualizar
-              form.d-inline(action=`/statuses/${status.id}` method='post')
-                input(type='hidden' name='_method' value='DELETE')
+              a.btn.btn-sm.btn-outline-primary(href='/statuses/' + status.id + '/edit') Actualizar
+              form.d-inline(action='/statuses/' + status.id + '/delete' method='post')
                 button.btn.btn-sm.btn-outline-danger(type='submit') Eliminar
   if currentUser
     a.btn.btn-primary(href='/statuses/new') Crear estado

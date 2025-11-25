@@ -339,6 +339,23 @@ export const buildApp = async () => {
       setFlash(reply, 'info', 'Estado actualizado con éxito');
       return reply.redirect('/statuses');
     });
+
+    // POST route for delete (HTML forms)
+    app.post('/statuses/:id/delete', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const { id } = request.params;
+      const ok = await statusRepo.remove(id);
+      if (!ok) {
+        setFlash(reply, 'danger', 'Cannot delete status with assigned tasks');
+        return reply.redirect('/statuses');
+      }
+      setFlash(reply, 'info', 'Estado eliminado con éxito');
+      return reply.redirect('/statuses');
+    });
+
     app.delete('/statuses/:id', async (request, reply) => {
       if (!request.currentUser) {
         setFlash(reply, 'danger', 'Access denied');
