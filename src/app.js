@@ -319,11 +319,20 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', t('status.name') + ' is required');
         return reply.redirect(`/statuses/${id}/edit`);
       }
-      console.log('Updating status', id, 'with name:', name);
-      await statusRepo.update(id, { name });
-      console.log('Update successful, redirecting to /statuses');
-      setFlash(reply, 'info', 'Estado actualizado con éxito');
-      return reply.redirect('/statuses');
+      try {
+        console.log('Updating status', id, 'with name:', name);
+        await statusRepo.update(id, { name });
+        console.log('Update successful, redirecting to /statuses');
+        setFlash(reply, 'info', 'Estado actualizado con éxito');
+        return reply.redirect('/statuses');
+      } catch (err) {
+        console.log('Error updating status:', err.message);
+        if (err.code === 'SQLITE_CONSTRAINT' || err.message.includes('UNIQUE')) {
+          setFlash(reply, 'danger', 'El nombre del estado ya existe');
+          return reply.redirect(`/statuses/${id}/edit`);
+        }
+        throw err;
+      }
     });
 
     app.patch('/statuses/:id', async (request, reply) => {
