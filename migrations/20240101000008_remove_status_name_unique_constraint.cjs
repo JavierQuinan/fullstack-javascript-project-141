@@ -7,11 +7,10 @@ exports.up = function(knex) {
     .createTable('statuses_temp', (table) => {
       table.increments('id').primary();
       table.string('name').notNullable(); // Sin .unique()
-      table.integer('creatorId').unsigned().references('id').inTable('users');
       table.timestamps(true, true);
     })
     .then(() => {
-      return knex.raw('INSERT INTO statuses_temp (id, name, creatorId, created_at, updated_at) SELECT id, name, creatorId, created_at, updated_at FROM statuses');
+      return knex.raw('INSERT INTO statuses_temp (id, name, created_at, updated_at) SELECT id, name, created_at, updated_at FROM statuses');
     })
     .then(() => {
       return knex.schema.dropTable('statuses');
@@ -30,11 +29,10 @@ exports.down = function(knex) {
     .createTable('statuses_temp', (table) => {
       table.increments('id').primary();
       table.string('name').notNullable().unique(); // Con .unique()
-      table.integer('creatorId').unsigned().references('id').inTable('users');
       table.timestamps(true, true);
     })
     .then(() => {
-      return knex.raw('INSERT INTO statuses_temp (id, name, creatorId, created_at, updated_at) SELECT id, name, creatorId, created_at, updated_at FROM statuses');
+      return knex.raw('INSERT INTO statuses_temp (id, name, created_at, updated_at) SELECT id, name, created_at, updated_at FROM statuses');
     })
     .then(() => {
       return knex.schema.dropTable('statuses');
