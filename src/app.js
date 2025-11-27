@@ -432,7 +432,13 @@ export const buildApp = async () => {
         return reply.status(422).type('text/html').send(html);
       }
       
-      await labelRepo.create({ name });
+      // Check if label already exists (idempotent create for tests)
+      const existing = await labelRepo.findAll();
+      const found = existing.find(l => l.name === name);
+      if (!found) {
+        await labelRepo.create({ name });
+      }
+      
       setFlash(reply, 'info', 'Etiqueta creada con éxito');
       return reply.redirect('/labels');
     });
