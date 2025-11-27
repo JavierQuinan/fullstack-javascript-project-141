@@ -63,6 +63,11 @@ export const findById = async (id) => {
 };
 
 export const create = async (attrs) => {
+  // Idempotent: check if task with same name exists
+  const existing = await knex('tasks').where({ name: attrs.name }).first();
+  if (existing) {
+    return findById(existing.id);
+  }
   const labels = attrs.labelIds || null;
   const insertAttrs = { ...attrs };
   delete insertAttrs.labelIds;
