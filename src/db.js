@@ -1,11 +1,12 @@
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import fs from 'fs';
 import knexLib from 'knex';
 
+/* eslint-disable no-underscore-dangle */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+/* eslint-enable no-underscore-dangle */
 const DB_DIR = join(__dirname, '..', 'data');
 const DEFAULT_DB_FILE = join(DB_DIR, 'app.sqlite3');
 
@@ -40,7 +41,7 @@ export const ensureBaseSchema = async () => {
       t.string('passwordDigest').notNullable().default('');
     });
   }
-  
+
   if (!hasPassword) {
     await knex.schema.table('users', (t) => {
       t.string('password').notNullable().default('');

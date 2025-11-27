@@ -1,38 +1,4 @@
-import { join } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import fs from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const STATUSES_FILE = join(__dirname, '..', 'data', 'statuses.json');
-
-const ensureDataDir = () => {
-  const dataDir = join(__dirname, '..', 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
-  }
-  if (!fs.existsSync(STATUSES_FILE)) {
-    fs.writeFileSync(STATUSES_FILE, JSON.stringify([]));
-  }
-};
-
-const read = () => {
-  ensureDataDir();
-  const raw = fs.readFileSync(STATUSES_FILE, 'utf8');
-  try {
-    return JSON.parse(raw);
-  } catch (err) {
-    return [];
-  }
-};
-
-const write = (items) => {
-  ensureDataDir();
-  fs.writeFileSync(STATUSES_FILE, JSON.stringify(items, null, 2));
-};
-
-import knex from '../db.js';
+import knex from '../db';
 
 export const findAll = async () => knex('statuses').select('*');
 
@@ -57,4 +23,6 @@ export const remove = async (id) => {
   return deleted > 0;
 };
 
-export default { findAll, findById, create, update, remove };
+export default {
+  findAll, findById, create, update, remove,
+};

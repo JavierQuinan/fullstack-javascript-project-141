@@ -1,7 +1,7 @@
 // src/server.js
 import 'dotenv/config';
-import { buildApp } from './app.js';
-import { getRollbar } from './rollbar.js';
+import { buildApp } from './app';
+import { getRollbar } from './rollbar';
 
 const PORT = process.env.PORT || 3000;
 // Importante para Render: escuchar en 0.0.0.0

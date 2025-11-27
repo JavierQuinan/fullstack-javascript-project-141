@@ -1,4 +1,4 @@
-import knex from '../db.js';
+import knex from '../db';
 
 export const findAll = async () => knex('labels').select('*');
 
@@ -23,4 +23,6 @@ export const remove = async (id) => {
   return deleted > 0;
 };
 
-export default { findAll, findById, create, update, remove };
+export default {
+  findAll, findById, create, update, remove,
+};

@@ -1,4 +1,4 @@
-import knex from '../db.js';
+import knex from '../db';
 
 export const findAll = async () => knex('users').select('*');
 export const findById = async (id) => knex('users').where({ id }).first();
@@ -23,4 +23,6 @@ export const remove = async (id) => {
   return deleted > 0;
 };
 
-export default { findAll, findById, findByEmail, create, update, remove };
+export default {
+  findAll, findById, findByEmail, create, update, remove,
+};

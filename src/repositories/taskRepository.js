@@ -1,8 +1,15 @@
-import knex from '../db.js';
+import knex from '../db';
 
 export const findAll = async (filters = {}) => {
   const q = knex('tasks')
-    .select('tasks.*', 'statuses.name as statusName', 'u1.firstName as creatorFirstName', 'u1.lastName as creatorLastName', 'u2.firstName as executorFirstName', 'u2.lastName as executorLastName')
+    .select(
+      'tasks.*',
+      'statuses.name as statusName',
+      'u1.firstName as creatorFirstName',
+      'u1.lastName as creatorLastName',
+      'u2.firstName as executorFirstName',
+      'u2.lastName as executorLastName',
+    )
     .leftJoin('statuses', 'tasks.statusId', 'statuses.id')
     .leftJoin('users as u1', 'tasks.creatorId', 'u1.id')
     .leftJoin('users as u2', 'tasks.executorId', 'u2.id');
@@ -50,7 +57,14 @@ export const findAll = async (filters = {}) => {
 
 export const findById = async (id) => {
   const task = await knex('tasks').where({ 'tasks.id': id })
-    .select('tasks.*', 'statuses.name as statusName', 'u1.firstName as creatorFirstName', 'u1.lastName as creatorLastName', 'u2.firstName as executorFirstName', 'u2.lastName as executorLastName')
+    .select(
+      'tasks.*',
+      'statuses.name as statusName',
+      'u1.firstName as creatorFirstName',
+      'u1.lastName as creatorLastName',
+      'u2.firstName as executorFirstName',
+      'u2.lastName as executorLastName',
+    )
     .leftJoin('statuses', 'tasks.statusId', 'statuses.id')
     .leftJoin('users as u1', 'tasks.creatorId', 'u1.id')
     .leftJoin('users as u2', 'tasks.executorId', 'u2.id')
@@ -87,7 +101,9 @@ export const update = async (id, attrs) => {
   if (labels) {
     // replace labels
     await knex('tasks_labels').where({ taskId: id }).del();
-    const rows = Array.isArray(labels) ? labels.filter(Boolean).map((labelId) => ({ taskId: id, labelId })) : [];
+    const rows = Array.isArray(labels)
+      ? labels.filter(Boolean).map((labelId) => ({ taskId: id, labelId }))
+      : [];
     if (rows.length) await knex('tasks_labels').insert(rows);
   }
   return findById(id);
@@ -98,4 +114,6 @@ export const remove = async (id) => {
   return deleted > 0;
 };
 
-export default { findAll, findById, create, update, remove };
+export default {
+  findAll, findById, create, update, remove,
+};
