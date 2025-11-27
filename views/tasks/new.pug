@@ -2,8 +2,6 @@ extends ../layout.pug
 
 block content
   h2 Nueva tarea
-  if flash && flash.message
-    .alert(class='alert-' + flash.type)= flash.message
   form(action='/tasks' method='post' novalidate)
     .mb-3
       label.form-label(for='data_name') Nombre
