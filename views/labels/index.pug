@@ -15,7 +15,7 @@ block content
           td= label.name
           td
             if currentUser
-              a.btn.btn-sm.btn-outline-primary(href='/labels/' + label.id + '/edit') Editar
+              a.btn.btn-sm.btn-outline-primary(href='/labels/' + label.id + '/edit') Actualizar
               form.d-inline(action='/labels/' + label.id + '/delete' method='post')
                 button.btn.btn-sm.btn-outline-danger(type='submit') Eliminar
   if currentUser
