@@ -8,17 +8,17 @@ block content
   form.mb-3(action='/tasks' method='get')
     .row.g-2
       .col-auto
-        select.form-select(name='statusId')
+        select.form-select(name='statusId' id='data_status')
           option(value='') Estado
           each s in statuses
             option(value=s.id selected=(String(filters.statusId) === String(s.id)))= s.name
       .col-auto
-        select.form-select(name='executorId')
+        select.form-select(name='executorId' id='data_executor')
           option(value='') Ejecutor
           each u in users
             option(value=u.id selected=(String(filters.executorId) === String(u.id)))= `${u.firstName} ${u.lastName}`
       .col-auto
-        select.form-select(name='labelId')
+        select.form-select(name='labelId' id='data_label')
           option(value='') Etiqueta
           each l in labels
             option(value=l.id selected=(String(filters.labelId) === String(l.id)))= l.name
