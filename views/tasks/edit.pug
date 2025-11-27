@@ -2,7 +2,7 @@ extends ../layout.pug
 
 block content
   h2 Editar tarea
-  form(action='/tasks/' + task.id method='post' novalidate)
+  form(action='/tasks/' + task.id + '/edit' method='post' novalidate)
     .mb-3
       label.form-label(for='data_name') Nombre
       input.form-control(type='text' id='data_name' name='data[name]' value=task.name)

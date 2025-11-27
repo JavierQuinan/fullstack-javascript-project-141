@@ -608,7 +608,30 @@ export const buildApp = async () => {
       await taskRepo.update(id, attrs);
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
-      setFlash(reply, 'success', t('task.updated'));
+      setFlash(reply, 'info', 'Tarea actualizada con éxito');
+      return reply.redirect('/tasks');
+    });
+
+    // POST route for update (HTML forms)
+    app.post('/tasks/:id/edit', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const { id } = request.params;
+      const name = (request.body['data[name]'] || '').trim();
+      const description = request.body['data[description]'] || '';
+      const statusId = request.body['data[statusId]'];
+      const executorId = request.body['data[executorId]'] || null;
+      let labelIds = null;
+      const rawLabels = request.body['data[labels][]'] || request.body['data[labels]'];
+      if (rawLabels) {
+        labelIds = Array.isArray(rawLabels) 
+          ? rawLabels.map((x) => (x === '' ? null : Number(x))).filter(Boolean) 
+          : [Number(rawLabels)].filter(Boolean);
+      }
+      await taskRepo.update(id, { name, description, statusId, executorId, labelIds });
+      setFlash(reply, 'info', 'Tarea actualizada con éxito');
       return reply.redirect('/tasks');
     });
 
