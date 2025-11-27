@@ -608,6 +608,20 @@ export const buildApp = async () => {
       return reply.redirect('/tasks');
     });
 
+    // POST route for delete (HTML forms)
+    app.post('/tasks/:id/delete', async (request, reply) => {
+      const { id } = request.params;
+      const task = await taskRepo.findById(id);
+      if (!task) return reply.status(404).send('Not found');
+      if (!request.currentUser || String(request.currentUser.id) !== String(task.creatorId)) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/tasks');
+      }
+      await taskRepo.remove(id);
+      setFlash(reply, 'info', 'Tarea eliminada con éxito');
+      return reply.redirect('/tasks');
+    });
+
     app.delete('/tasks/:id', async (request, reply) => {
       const { id } = request.params;
       const task = await taskRepo.findById(id);

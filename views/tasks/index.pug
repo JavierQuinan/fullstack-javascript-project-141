@@ -1,10 +1,9 @@
 extends ../layout.pug
 
 block content
-  if flash
-    .alert(class=`alert-${flash.type}` role='alert')= flash.message
   h2 Tareas
-  a.btn.btn-primary.mb-3(href='/tasks/new') Nueva tarea
+  if currentUser
+    a.btn.btn-primary.mb-3(href='/tasks/new') Crear tarea
   //- Filters form
   form.mb-3(action='/tasks' method='get')
     .row.g-2
@@ -46,13 +45,12 @@ block content
       each task in tasks
         tr
           td= task.id
-          td: a(href=`/tasks/${task.id}`)= task.name
+          td: a(href='/tasks/' + task.id)= task.name
           td= task.statusName
           td= `${task.creatorFirstName} ${task.creatorLastName}`
           td= task.executorFirstName ? `${task.executorFirstName} ${task.executorLastName}` : ''
           td
             if currentUser && String(currentUser.id) === String(task.creatorId)
-              a.btn.btn-sm.btn-outline-primary(href=`/tasks/${task.id}/edit`) Editar
-              form.d-inline(action=`/tasks/${task.id}` method='post')
-                input(type='hidden' name='_method' value='DELETE')
+              a.btn.btn-sm.btn-outline-primary(href='/tasks/' + task.id + '/edit') Actualizar
+              form.d-inline(action='/tasks/' + task.id + '/delete' method='post')
                 button.btn.btn-sm.btn-outline-danger(type='submit') Eliminar
