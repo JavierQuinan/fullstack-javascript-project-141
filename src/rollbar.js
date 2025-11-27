@@ -5,6 +5,7 @@ export const initRollbar = async () => {
   if (!token) return null;
   try {
     // load rollbar dynamically so app can run even if not installed
+    // eslint-disable-next-line import/no-unresolved
     const mod = await import('rollbar');
     const Rollbar = mod.default || mod;
     rollbar = new Rollbar({

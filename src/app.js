@@ -77,7 +77,7 @@ export const buildApp = async () => {
   // Wrapper para compatibilidad con Fastify 4.x y 5.x listen() API
   // Hexlet tests usan la sintaxis antigua: app.listen(port, host)
   const originalListen = app.listen.bind(app);
-  app.listen = function (portOrOptions, host) {
+  app.listen = function listenWrapper(portOrOptions, host) {
     if (typeof portOrOptions === 'number') {
       // Sintaxis antigua: listen(port, host) -> convertir a listen({ port, host })
       return originalListen({ port: portOrOptions, host: host || '0.0.0.0' });
