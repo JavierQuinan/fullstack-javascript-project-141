@@ -542,10 +542,24 @@ export const buildApp = async () => {
       const executorId = request.body['data[executorId]'] || (request.body.data && request.body.data.executorId) || null;
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
-      if (!name || !statusId) {
-        setFlash(reply, 'danger', 'Validation error');
-        return reply.redirect('/tasks/new');
+      
+      // Validation
+      const errors = {};
+      if (!name) errors.name = 'Nombre no puede estar vacío';
+      if (!statusId) errors.statusId = 'Estado debe seleccionarse';
+      
+      if (Object.keys(errors).length > 0) {
+        const statuses = await statusRepo.findAll();
+        const users = await userRepo.findAll();
+        const labels = await labelRepo.findAll();
+        const flash = { type: 'danger', message: 'No se pudo crear la tarea' };
+        const values = { name, description, statusId, executorId };
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'tasks', 'new.pug'), { 
+          t, lang, statuses, users, labels, flash, errors, values, currentUser: request.currentUser 
+        });
+        return reply.code(422).type('text/html').send(html);
       }
+      
       const creatorId = request.currentUser.id;
       // Normalize labelIds: may be undefined, single value or array
       // Support both data[labelIds][] and data[labels][]
