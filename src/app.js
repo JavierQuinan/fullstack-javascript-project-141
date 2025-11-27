@@ -388,6 +388,105 @@ export const buildApp = async () => {
       return reply.redirect('/statuses');
     });
 
+    // Labels routes
+    app.get('/labels', async (request, reply) => {
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      const labels = await labelRepo.findAll();
+      const flash = getFlash(request, reply);
+      const html = pug.renderFile(join(__dirname, '..', 'views', 'labels', 'index.pug'), { t, lang, labels, currentUser: request.currentUser, flash });
+      return reply.type('text/html').send(html);
+    });
+
+    app.get('/labels/new', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      const flash = getFlash(request, reply);
+      const html = pug.renderFile(join(__dirname, '..', 'views', 'labels', 'new.pug'), { t, lang, label: {}, errors: {}, currentUser: request.currentUser, flash });
+      return reply.type('text/html').send(html);
+    });
+
+    app.post('/labels', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      
+      const errors = {};
+      if (!name) {
+        errors.name = 'Nombre is required';
+      }
+      
+      if (Object.keys(errors).length > 0) {
+        const flash = { type: 'danger', message: 'No se pudo crear la etiqueta' };
+        const html = pug.renderFile(join(__dirname, '..', 'views', 'labels', 'new.pug'), {
+          t, lang, label: { name }, errors, flash, currentUser: request.currentUser
+        });
+        return reply.status(422).type('text/html').send(html);
+      }
+      
+      await labelRepo.create({ name });
+      setFlash(reply, 'info', 'Etiqueta creada con éxito');
+      return reply.redirect('/labels');
+    });
+
+    app.get('/labels/:id/edit', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const { id } = request.params;
+      const label = await labelRepo.findById(id);
+      if (!label) return reply.status(404).send('Not found');
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      const flash = getFlash(request, reply);
+      const html = pug.renderFile(join(__dirname, '..', 'views', 'labels', 'edit.pug'), { t, lang, label, errors: {}, currentUser: request.currentUser, flash });
+      return reply.type('text/html').send(html);
+    });
+
+    app.post('/labels/:id', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const { id } = request.params;
+      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
+      const lang = request.query.lng || 'es';
+      const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
+      
+      if (!name) {
+        setFlash(reply, 'danger', 'Nombre is required');
+        return reply.redirect('/labels/' + id + '/edit');
+      }
+      
+      await labelRepo.update(id, { name });
+      setFlash(reply, 'info', 'Etiqueta actualizada con éxito');
+      return reply.redirect('/labels');
+    });
+
+    app.post('/labels/:id/delete', async (request, reply) => {
+      if (!request.currentUser) {
+        setFlash(reply, 'danger', 'Access denied');
+        return reply.redirect('/session/new');
+      }
+      const { id } = request.params;
+      const ok = await labelRepo.remove(id);
+      if (!ok) {
+        setFlash(reply, 'danger', 'No se puede eliminar la etiqueta con tareas asignadas');
+        return reply.redirect('/labels');
+      }
+      setFlash(reply, 'info', 'Etiqueta eliminada con éxito');
+      return reply.redirect('/labels');
+    });
+
     // Tasks routes
     app.get('/tasks', async (request, reply) => {
       const lang = request.query.lng || 'es';

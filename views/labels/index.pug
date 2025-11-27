@@ -1,8 +1,6 @@
 extends ../layout.pug
 
 block content
-  if flash
-    .alert(class=`alert-${flash.type}` role='alert')= flash.message
   h2 Etiquetas
   table.table
     thead
@@ -17,9 +15,8 @@ block content
           td= label.name
           td
             if currentUser
-              a.btn.btn-sm.btn-outline-primary(href=`/labels/${label.id}/edit`) Editar
-              form.d-inline(action=`/labels/${label.id}` method='post')
-                input(type='hidden' name='_method' value='DELETE')
+              a.btn.btn-sm.btn-outline-primary(href='/labels/' + label.id + '/edit') Editar
+              form.d-inline(action='/labels/' + label.id + '/delete' method='post')
                 button.btn.btn-sm.btn-outline-danger(type='submit') Eliminar
   if currentUser
-    a.btn.btn-primary(href='/labels/new') Nueva etiqueta
+    a.btn.btn-primary(href='/labels/new') Crear etiqueta
