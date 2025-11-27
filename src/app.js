@@ -548,10 +548,14 @@ export const buildApp = async () => {
       }
       const creatorId = request.currentUser.id;
       // Normalize labelIds: may be undefined, single value or array
+      // Support both data[labelIds][] and data[labels][]
       let labelIds = null;
-      if (request.body && request.body.data && request.body.data.labelIds) {
-        const li = request.body.data.labelIds;
-        labelIds = Array.isArray(li) ? li.map((x) => (x === '' ? null : Number(x))).filter(Boolean) : [Number(li)];
+      const rawLabels = request.body['data[labels][]'] || request.body['data[labels]'] || 
+                        (request.body.data && (request.body.data.labels || request.body.data.labelIds));
+      if (rawLabels) {
+        labelIds = Array.isArray(rawLabels) 
+          ? rawLabels.map((x) => (x === '' ? null : Number(x))).filter(Boolean) 
+          : [Number(rawLabels)].filter(Boolean);
       }
       await taskRepo.create({ name, description, statusId, creatorId, executorId: executorId || null, labelIds });
       setFlash(reply, 'success', t('task.created'));
