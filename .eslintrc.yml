@@ -1,0 +1,41 @@
+env:
+  node: true
+  es2021: true
+  mocha: true
+
+extends:
+  - airbnb-base
+
+parserOptions:
+  ecmaVersion: latest
+  sourceType: module
+
+rules:
+  import/extensions: off
+  import/no-unresolved: off
+  import/prefer-default-export: off
+  import/no-duplicates: off
+  import/first: off
+  no-console: off
+  no-param-reassign: off
+  no-shadow: off
+  no-unused-vars: warn
+  max-len: off
+  indent: off
+  quotes: off
+  comma-dangle: off
+  object-curly-newline: off
+  arrow-parens: off
+  no-trailing-spaces: off
+  eol-last: off
+  newline-per-chained-call: off
+  prefer-template: off
+  prefer-destructuring: off
+  new-cap: off
+  no-nested-ternary: off
+  func-names: off
+  no-restricted-syntax: off
+  no-continue: off
+  no-await-in-loop: off
+  no-empty: off
+  operator-linebreak: off
