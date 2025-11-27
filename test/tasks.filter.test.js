@@ -1,3 +1,4 @@
+/* eslint-env mocha */
 import { strict as assert } from 'assert';
 import knex from '../src/db';
 import * as userRepo from '../src/repositories/userRepository';

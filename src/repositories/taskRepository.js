@@ -43,11 +43,13 @@ export const findAll = async (filters = {}) => {
   // Load labels for all tasks in one query
   const ids = rows.map((r) => r.id);
   const labelsRows = await knex('tasks_labels').whereIn('taskId', ids).join('labels', 'tasks_labels.labelId', 'labels.id').select('tasks_labels.taskId', 'labels.id', 'labels.name');
+  /* eslint-disable no-param-reassign */
   const labelsByTask = labelsRows.reduce((acc, l) => {
     acc[l.taskId] = acc[l.taskId] || [];
     acc[l.taskId].push({ id: l.id, name: l.name });
     return acc;
   }, {});
+  /* eslint-enable no-param-reassign */
 
   return rows.map((r) => {
     const labels = labelsByTask[r.id] || [];

@@ -23,6 +23,7 @@ const __dirname = dirname(__filename);
 /* eslint-enable no-underscore-dangle */
 
 export const buildApp = async () => {
+  // eslint-disable-next-line new-cap
   const app = Fastify({
     logger: true,
   });
@@ -125,6 +126,7 @@ export const buildApp = async () => {
   // Simple cookie helpers (no plugin) ---------------------------------
   const parseCookies = (cookieHeader) => {
     if (!cookieHeader) return {};
+    /* eslint-disable no-param-reassign */
     return String(cookieHeader).split(';').map((c) => c.trim()).filter(Boolean)
       .reduce((acc, pair) => {
         const idx = pair.indexOf('=');
@@ -138,6 +140,7 @@ export const buildApp = async () => {
         }
         return acc;
       }, {});
+    /* eslint-enable no-param-reassign */
   };
 
   const serializeCookie = (name, value, opts = {}) => {
@@ -187,6 +190,7 @@ export const buildApp = async () => {
   // Middleware to add template helpers and handle method override
   app.addHook('onRequest', async (request) => {
     // parse cookies into request.cookies
+    /* eslint-disable no-param-reassign */
     const rawCookies = request.headers && request.headers.cookie;
     request.cookies = parseCookies(rawCookies);
     // attach currentUser if logged
@@ -197,6 +201,7 @@ export const buildApp = async () => {
     } else {
       request.currentUser = null;
     }
+    /* eslint-enable no-param-reassign */
   });
 
   // Initialize Rollbar if token provided

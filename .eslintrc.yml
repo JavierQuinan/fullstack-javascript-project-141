@@ -6,4 +6,9 @@ env:
 parserOptions:
   ecmaVersion: 2022
   sourceType: module
-rules: {}
+rules:
+  import/no-unresolved:
+    - error
+    - ignore:
+      - rollbar
+
