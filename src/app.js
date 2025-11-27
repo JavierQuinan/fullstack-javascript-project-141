@@ -535,11 +535,11 @@ export const buildApp = async () => {
         setFlash(reply, 'danger', 'Access denied');
         return reply.redirect('/session/new');
       }
-      const data = request.body && request.body.data ? request.body.data : {};
-      const name = (data.name || '').trim();
-      const description = data.description || null;
-      const statusId = data.statusId;
-      const executorId = data.executorId || null;
+      // Compatibilidad con diferentes formatos de parseo de @fastify/formbody
+      const name = (request.body['data[name]'] || (request.body.data && request.body.data.name) || '').trim();
+      const description = request.body['data[description]'] || (request.body.data && request.body.data.description) || '';
+      const statusId = request.body['data[statusId]'] || (request.body.data && request.body.data.statusId);
+      const executorId = request.body['data[executorId]'] || (request.body.data && request.body.data.executorId) || null;
       const lang = request.query.lng || 'es';
       const t = (key, opts) => i18next.getFixedT(lang)(key, opts);
       if (!name || !statusId) {
@@ -558,7 +558,7 @@ export const buildApp = async () => {
           : [Number(rawLabels)].filter(Boolean);
       }
       await taskRepo.create({ name, description, statusId, creatorId, executorId: executorId || null, labelIds });
-      setFlash(reply, 'success', t('task.created'));
+      setFlash(reply, 'info', 'Tarea creada con éxito');
       return reply.redirect('/tasks');
     });
 
