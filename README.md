@@ -4,6 +4,31 @@
 
 Sistema completo de gestión de tareas (Task Manager) construido con tecnologías JavaScript modernas. Aplicación full-stack con autenticación de usuarios, CRUD de tareas, sistema de etiquetas y estados personalizables.
 
+<div align="center">
+  
+![Aplicación Task Manager](.github/screenshots/Proyecto%20app_141.png)
+  
+*🖥️ Vista principal de la aplicación Task Manager*
+
+</div>
+
+---
+
+## 🚀 Tech Stack
+
+<p align="center">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript"/>
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js"/>
+  <img src="https://img.shields.io/badge/Fastify-000000?style=for-the-badge&logo=fastify&logoColor=white" alt="Fastify"/>
+  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite"/>
+  <img src="https://img.shields.io/badge/Pug-A86454?style=for-the-badge&logo=pug&logoColor=white" alt="Pug"/>
+  <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap"/>
+  <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=black" alt="Webpack"/>
+  <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint"/>
+  <img src="https://img.shields.io/badge/Mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white" alt="Mocha"/>
+  <img src="https://img.shields.io/badge/Rollbar-DE2B4B?style=for-the-badge&logo=rollbar&logoColor=white" alt="Rollbar"/>
+</p>
+
 ---
 
 ## 📑 Tabla de Contenidos
@@ -650,7 +675,7 @@ ISC
 
 ## 👤 Autor
 
-**Javier Quiñan** - [GitHub](https://github.com/JavierQuinan)
+**Francisco Quinteros** - [GitHub](https://github.com/JavierQuinan)
 
 ---
 
