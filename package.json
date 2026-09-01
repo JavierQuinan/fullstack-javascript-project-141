@@ -1,7 +1,7 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.2",
-  "description": "Hexlet Fastify application",
+  "description": "Full-stack task management application built with Fastify, SQLite, Knex and Pug.",
   "main": "src/app.js",
   "type": "module",
   "scripts": {
@@ -12,8 +12,18 @@
     "setup": "node scripts/setup.js",
     "db:migrate": "npx knex migrate:latest"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "fastify",
+    "task-manager",
+    "sqlite",
+    "knex",
+    "nodejs"
+  ],
+  "author": "Francisco Quinteros",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JavierQuinan/fullstack-javascript-project-141.git"
+  },
   "license": "ISC",
   "dependencies": {
     "@fastify/cookie": "^9.0.0",
