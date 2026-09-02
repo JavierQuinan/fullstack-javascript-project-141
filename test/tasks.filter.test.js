@@ -1,10 +1,10 @@
 /* eslint-env mocha */
 import { strict as assert } from 'assert';
-import knex from '../src/db';
-import * as userRepo from '../src/repositories/userRepository';
-import * as statusRepo from '../src/repositories/statusRepository';
-import * as labelRepo from '../src/repositories/labelRepository';
-import * as taskRepo from '../src/repositories/taskRepository';
+import knex from '../src/db.js';
+import * as userRepo from '../src/repositories/userRepository.js';
+import * as statusRepo from '../src/repositories/statusRepository.js';
+import * as labelRepo from '../src/repositories/labelRepository.js';
+import * as taskRepo from '../src/repositories/taskRepository.js';
 
 describe('Tasks filtering', () => {
   before(async () => {
