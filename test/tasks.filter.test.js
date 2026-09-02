@@ -6,8 +6,6 @@ import * as statusRepo from '../src/repositories/statusRepository';
 import * as labelRepo from '../src/repositories/labelRepository';
 import * as taskRepo from '../src/repositories/taskRepository';
 
-process.env.DB_FILE = ':memory:';
-
 describe('Tasks filtering', () => {
   before(async () => {
     await knex.migrate.latest();
