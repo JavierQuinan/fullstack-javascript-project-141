@@ -1,4 +1,4 @@
-import knex from '../db';
+import knex from '../db.js';
 
 export const findAll = async () => knex('users').select('*');
 export const findById = async (id) => knex('users').where({ id }).first();
