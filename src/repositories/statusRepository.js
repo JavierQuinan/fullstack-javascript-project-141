@@ -1,4 +1,4 @@
-import knex from '../db';
+import knex from '../db.js';
 
 export const findAll = async () => knex('statuses').select('*');
 
@@ -15,7 +15,6 @@ export const update = async (id, attrs) => {
 };
 
 export const remove = async (id) => {
-  // Prevent deletion if any task references this status
   const tasks = await knex('tasks').where({ statusId: id }).count({ c: 'id' }).first();
   const count = Number(tasks.c || 0);
   if (count > 0) return false;
